@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-stellar-xdr = { version = "0.0.12", features = ["next"] }
+stellar-xdr = { version = "21" }
 wasm-gen = { version = "0.1.4" }
 clap = { version = "4.0.32", features = ["derive"] }
