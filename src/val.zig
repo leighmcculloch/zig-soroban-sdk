@@ -1,59 +1,43 @@
 pub const Val = packed struct {
     const Self = @This();
 
-    isTagged: bool,
+    // 8 bits
+    tag: enum(u8) {
+        false = 0,
+        true = 1,
+        u32 = 4,
+    },
+
+    // 56 bits
     body: packed union {
-        u63: u63,
-        tagged: packed struct {
-            tags: enum(u3) {
-                u32 = 0,
-                i32 = 1,
-                static = 2,
-                object = 3,
-                symbol = 4,
-                bitSet = 5,
-                status = 6,
-            },
-            body: packed union {
-                u32: packed struct {
-                    value: u32,
-                    _: u28,
-                },
-                static: enum(u60) {
-                    void = 0,
-                    true = 1,
-                    false = 2,
-                },
-            },
+        major_minor: packed struct {
+            major: u32,
+            minor: u24,
         },
     },
 
+    pub fn isBool(self: Self) bool {
+        return self.isTrue() || self.isFalse();
+    }
+
     pub fn isTrue(self: Self) bool {
-        return self.isTagged and self.body.tagged.tags == .static and self.body.tagged.body.static == .true;
+        return self.tag == .true;
     }
 
-    pub fn isU63(self: Self) bool {
-        return !self.isTagged;
-    }
-
-    pub fn toU63(self: Self) u63 {
-        return self.body.u63;
-    }
-
-    pub fn fromU63(v: u63) Val {
-        return Val{ .isTagged = false, .body = v };
+    pub fn isFalse(self: Self) bool {
+        return self.tag == .false;
     }
 
     pub fn isU32(self: Self) bool {
-        return self.isTagged and self.body.tagged.tags == .u32;
+        return self.tag == .u32;
     }
 
     pub fn toU32(self: Self) u32 {
-        return self.body.tagged.body.u32.value;
+        return self.body.major_minor.major;
     }
 
     pub fn fromU32(v: u32) Val {
-        return Val{ .isTagged = true, .body = .{ .tagged = .{ .tags = .u32, .body = .{ .u32 = .{ .value = v, ._ = 0 } } } } };
+        return Val{ .tag = .u32, .body = .{ .major_minor = .{ .major = v, .minor = 0 } } };
     }
 };
 
