@@ -1,10 +1,5 @@
 const Val = @import("val.zig").Val;
 
-const MyType = extern struct {
-    address: Val,
-    balance: i128,
-};
-
 export fn add(ia: Val, ib: Val, ic: Val) Val {
     const a = ia.toBool();
     const b = ib.toU32();
