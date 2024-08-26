@@ -50,5 +50,5 @@ comptime {
 test {
     const print = @import("std").debug.print;
     const v: Val = @bitCast(@as(u64, 0));
-    print("v: {b}", .{v});
+    print("v: {}\n", .{v});
 }
