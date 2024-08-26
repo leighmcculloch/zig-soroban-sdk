@@ -6,12 +6,13 @@ const MyType = extern struct {
     balance: i128,
 };
 
-export fn add(a: Val, b: Val, c: Val) Val {
-    if (a.isTrue()) {
-        return Val.fromU32(b.toU32() + c.toU32());
-    } else if (a.isFalse()) {
-        return Val.fromU32(0);
+export fn add(ia: Val, ib: Val, ic: Val) Val {
+    const a = ia.toBool();
+    const b = ib.toU32();
+    const c = ic.toU32();
+    if (a) {
+        return Val.fromU32(b + c);
     } else {
-        while (true) {}
+        return Val.fromU32(0);
     }
 }

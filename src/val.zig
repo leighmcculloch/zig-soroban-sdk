@@ -28,6 +28,10 @@ pub const Val = packed struct {
         return self.tag == .false;
     }
 
+    pub fn toBool(self: Self) bool {
+        return self.isTrue();
+    }
+
     pub fn isU32(self: Self) bool {
         return self.tag == .u32;
     }
