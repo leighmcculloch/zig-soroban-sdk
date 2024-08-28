@@ -1,0 +1,10 @@
+{
+  "function_v0": {
+    "doc": "",
+    "name": "id",
+    "inputs": [],
+    "outputs": [
+      "address"
+    ]
+  }
+}
