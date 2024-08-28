@@ -1,0 +1,42 @@
+{
+  "function_v0": {
+    "doc": "",
+    "name": "add",
+    "inputs": [
+      {
+        "doc": "",
+        "name": "x",
+        "type_": "u32"
+      },
+      {
+        "doc": "",
+        "name": "y",
+        "type_": "u32"
+      }
+    ],
+    "outputs": [
+      "u32"
+    ]
+  }
+}
+{
+  "function_v0": {
+    "doc": "",
+    "name": "sub",
+    "inputs": [
+      {
+        "doc": "",
+        "name": "x",
+        "type_": "u32"
+      },
+      {
+        "doc": "",
+        "name": "y",
+        "type_": "u32"
+      }
+    ],
+    "outputs": [
+      "u32"
+    ]
+  }
+}
