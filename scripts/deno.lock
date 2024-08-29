@@ -1,0 +1,33 @@
+{
+  "version": "3",
+  "packages": {
+    "specifiers": {
+      "jsr:@std/cli@^1.0.4": "jsr:@std/cli@1.0.4",
+      "npm:citty@^0.1.6": "npm:citty@0.1.6"
+    },
+    "jsr": {
+      "@std/cli@1.0.4": {
+        "integrity": "79ca75add572a99a8ba93ae37ccbd8d43fb4e2b635a8a7ebebb4f2d092048764"
+      }
+    },
+    "npm": {
+      "citty@0.1.6": {
+        "integrity": "sha512-tskPPKEs8D2KPafUypv2gxwJP8h/OaJmC82QQGGDQcHvXX43xF2VDACcJVmZ0EuSxkpO9Kc4MlrA3q0+FG58AQ==",
+        "dependencies": {
+          "consola": "consola@3.2.3"
+        }
+      },
+      "consola@3.2.3": {
+        "integrity": "sha512-I5qxpzLv+sJhTVEoLYNcTW+bThDCPsit0vLNKShZx6rLtpilNpmmeTPaeqJb9ZE9dV3DGaeby6Vuhrw38WjeyQ==",
+        "dependencies": {}
+      }
+    }
+  },
+  "remote": {},
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/cli@^1.0.4",
+      "npm:citty@^0.1.6"
+    ]
+  }
+}

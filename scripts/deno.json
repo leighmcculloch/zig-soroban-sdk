@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "generate-env": "deno --deny-env --allow-read=. --allow-net=raw.githubusercontent.com generate-env.ts"
+  },
+  "imports": {
+    "@std/cli": "jsr:@std/cli@^1.0.4",
+    "citty": "npm:citty@^0.1.6"
+  }
+}
