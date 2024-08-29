@@ -4,7 +4,10 @@ build:
 		-fno-entry \
 		-rdynamic \
 		-O ReleaseSmall \
-		math.zig
+		--dep soroban-sdk \
+		--name math \
+		-Mroot=math.zig \
+		-Msoroban-sdk=../../src/root.zig
 	cat env-meta.json \
 		| stellar-xdr encode --type ScEnvMetaEntry --output stream \
 		| wasm-cs math.wasm write contractenvmetav0

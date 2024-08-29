@@ -1,5 +1,6 @@
 // Generated from https://raw.githubusercontent.com/stellar/rs-soroban-env/v21.0.0/soroban-env-common/env.json.
-pub const Val = u64;
+const Val = @import("val.zig").Val;
+
 pub const Void = Val;
 pub const Error = Val;
 pub const U32Val = Val;

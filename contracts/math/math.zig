@@ -1,4 +1,4 @@
-const Val = @import("val.zig").Val;
+const Val = @import("soroban-sdk").Val;
 
 export fn add(x: Val, y: Val) Val {
     return Val.fromU32(_add(

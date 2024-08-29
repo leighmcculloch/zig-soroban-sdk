@@ -4,7 +4,10 @@ build:
 		-fno-entry \
 		-rdynamic \
 		-O ReleaseSmall \
-		self.zig
+		--dep soroban-sdk \
+		--name self \
+		-Mroot=self.zig \
+		-Msoroban-sdk=../../src/root.zig
 	cat env-meta.json \
 		| stellar-xdr encode --type ScEnvMetaEntry --output stream \
 		| wasm-cs self.wasm write contractenvmetav0

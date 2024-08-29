@@ -1,10 +1,6 @@
-const Val = @import("val.zig").Val;
+// const Val = @import("val.zig").Val;
+const sdk = @import("soroban-sdk");
 
-export fn id() Val {
-    return context_get_current_contract_address();
+export fn id() sdk.Val {
+    return sdk.env.context.get_current_contract_address();
 }
-
-const context_get_current_contract_address = @extern(*const fn () callconv(.C) Val, .{
-    .library_name = "x",
-    .name = "7",
-});

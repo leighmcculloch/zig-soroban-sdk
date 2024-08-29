@@ -1,7 +1,8 @@
 PROTO_VERSION=21
 
 build:
-	$(MAKE) -C contracts/adder build
+	$(MAKE) -C contracts/math build
+	$(MAKE) -C contracts/self build
 
 math:
 	$(MAKE) -C contracts/math build deploy test
