@@ -80,6 +80,8 @@ jobs:
     - uses: actions/checkout@v4
     - uses: Homebrew/actions/setup-homebrew@master
     - run: brew install zig
+    - run: cargo install --locked wasm-cs
+    - run: cargo install --locked stellar-xdr --features cli --git https://github.com/stellar/rs-stellar-xdr --rev 17464996f47d25d6d836e76d0f6ae276969e7b8c
     - run: make build
     - uses: actions/upload-artifact@v4
       with:
