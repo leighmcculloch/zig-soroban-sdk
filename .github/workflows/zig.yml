@@ -85,5 +85,4 @@ jobs:
     - run: make build
     - uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.working-directory }}
-        path: '*.wasm'
+        path: ${{ matrix.working-directory }}.wasm
