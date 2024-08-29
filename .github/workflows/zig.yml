@@ -30,3 +30,29 @@ jobs:
     - uses: Homebrew/actions/setup-homebrew@master
     - run: brew install zig
     - run: zig fmt --check .
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: Homebrew/actions/setup-homebrew@master
+    - run: brew install zig
+    - run: zig build
+    - run: zig build docs
+    - uses: actions/upload-pages-artifact@v3
+      with:
+        path: zig-out/docs
+
+  docs:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+

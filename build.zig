@@ -10,4 +10,12 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     b.installArtifact(lib);
+
+    const docs = b.addInstallDirectory(.{
+        .source_dir = lib.getEmittedDocs(),
+        .install_dir = .prefix,
+        .install_subdir = "docs",
+    });
+    const docs_step = b.step("docs", "Collect docs");
+    docs_step.dependOn(&docs.step);
 }
