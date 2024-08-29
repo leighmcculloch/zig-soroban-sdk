@@ -27,5 +27,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - uses: Homebrew/actions/setup-homebrew@master
     - run: brew install zig
     - run: zig fmt --check
