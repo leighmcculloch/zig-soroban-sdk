@@ -46,20 +46,26 @@ pub const Val = packed struct {
     },
 
     pub fn toBool(self: Self) bool {
-        if (self.tag == .true) {
-            return true;
-        } else if (self.tag == .false) {
-            return false;
+        switch (self.tag) {
+            .true => return true,
+            .false => return false,
+            else => @trap(),
+        }
+    }
+
+    pub fn fromBool(v: bool) Val {
+        if (v) {
+            return Val{ .tag = .true };
         } else {
-            @trap();
+            return Val{ .tag = .false };
         }
     }
 
     pub fn toU32(self: Self) u32 {
-        if (self.tag != .u32_val) {
-            @trap();
+        switch (self.tag) {
+            .u32_val => return self.body.u32_val,
+            else => @trap(),
         }
-        return self.body.u32_val;
     }
 
     pub fn fromU32(v: u32) Val {
