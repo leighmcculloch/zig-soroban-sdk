@@ -71,6 +71,17 @@ pub const Val = packed struct {
     pub fn fromU32(v: u32) Val {
         return Val{ .tag = .u32_val, .body = .{ .u32_val = v } };
     }
+
+    pub fn toVoid(self: Self) void {
+        switch (self.tag) {
+            .void => return,
+            else => @trap(),
+        }
+    }
+
+    pub fn fromVoid(_: void) Val {
+        return Val{ .tag = .void };
+    }
 };
 
 comptime {
