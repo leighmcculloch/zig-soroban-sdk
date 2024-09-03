@@ -1,3 +1,5 @@
+const std = @import("std");
+
 const Val = @import("soroban-sdk").Val;
 
 export fn add(x: Val, y: Val) Val {
@@ -8,7 +10,7 @@ export fn add(x: Val, y: Val) Val {
 }
 
 fn _add(x: u32, y: u32) u32 {
-    return x + y;
+    return std.math.add(u32, x, y) catch @trap();
 }
 
 export fn sub(x: Val, y: Val) Val {
@@ -19,5 +21,5 @@ export fn sub(x: Val, y: Val) Val {
 }
 
 fn _sub(x: u32, y: u32) u32 {
-    return x - y;
+    return std.math.sub(u32, x, y) catch @trap();
 }
