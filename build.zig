@@ -14,6 +14,15 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    // Post-processor tool (compiled for host, adds wasm custom sections)
+    const postprocess = b.addExecutable(.{
+        .name = "postprocess_wasm",
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("tools/postprocess_wasm.zig"),
+            .target = b.graph.host,
+        }),
+    });
+
     // Example contracts
     const examples = [_][]const u8{
         "hello",
@@ -37,9 +46,20 @@ pub fn build(b: *std.Build) void {
         example.entry = .disabled;
         example.rdynamic = true;
 
-        const install = b.addInstallArtifact(example, .{
-            .dest_dir = .{ .override = .{ .custom = "contracts" } },
-        });
+        // Post-process wasm to add custom sections required by Soroban.
+        // Zig's wasm backend emits @export'd section data as globals+data
+        // segments, but Soroban needs actual wasm custom sections (type 0x00).
+        const postprocess_run = b.addRunArtifact(postprocess);
+        postprocess_run.addArtifactArg(example);
+        const processed_wasm = postprocess_run.addOutputFileArg(
+            b.fmt("{s}.wasm", .{example_name}),
+        );
+
+        const install = b.addInstallFileWithDir(
+            processed_wasm,
+            .{ .custom = "contracts" },
+            b.fmt("{s}.wasm", .{example_name}),
+        );
         examples_step.dependOn(&install.step);
     }
 
