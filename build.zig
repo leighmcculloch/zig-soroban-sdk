@@ -4,6 +4,15 @@ pub fn build(b: *std.Build) void {
     const target = b.resolveTargetQuery(.{
         .cpu_arch = .wasm32,
         .os_tag = .freestanding,
+        // Soroban's wasmi runtime only supports: bulk_memory, mutable_globals,
+        // sign_ext. Disable all other post-MVP features that Zig enables by
+        // default (lime1 cpu) to avoid wasm validation failures at deploy time.
+        .cpu_features_sub = std.Target.wasm.featureSet(&.{
+            .multivalue,
+            .extended_const,
+            .nontrapping_fptoint,
+            .call_indirect_overlong,
+        }),
     });
     const optimize = b.standardOptimizeOption(.{});
 

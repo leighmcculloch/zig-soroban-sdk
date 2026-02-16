@@ -383,6 +383,9 @@ pub const Symbol = extern struct {
     }
 
     /// Encode a small symbol from a comptime-known string.
+    /// Characters are packed 6 bits each from MSB to LSB into the
+    /// body, with unused high bits left as zero. This matches the
+    /// Rust SDK's SymbolSmall encoding.
     pub fn fromString(comptime s: []const u8) Symbol {
         if (s.len > 9) @compileError("SymbolSmall can hold at most 9 characters");
         comptime var body: u64 = 0;
@@ -390,11 +393,6 @@ pub const Symbol = extern struct {
             const code: u6 = comptime encodeSymbolChar(c);
             body = (body << 6) | @as(u64, code);
         }
-        // Left-align into bits 8..62: shift up so the first char
-        // occupies the highest 6 bits of the 54-bit field, then
-        // place the length in the top byte position.
-        body = body << @intCast(6 * (9 - s.len));
-        body = body | @as(u64, s.len);
         return .{ .payload = comptime makeTaggedPayload(Tag.symbol_small, body) };
     }
 
@@ -1043,6 +1041,22 @@ test "Symbol 9 chars (max)" {
     try testing.expectEqual(Tag.symbol_small, sym.toVal().getTag());
 }
 
+test "Symbol encoding matches Rust SDK test vectors" {
+    // These test vectors are from rs-soroban-env symbol.rs test_enc
+    // "a" -> body = 0b100110 = 38
+    const sym_a = Symbol.fromString("a");
+    try testing.expectEqual(@as(u64, 38), getBody(sym_a.payload));
+    // "ab" -> body = (38 << 6) | 39 = 2471
+    const sym_ab = Symbol.fromString("ab");
+    try testing.expectEqual(@as(u64, (38 << 6) | 39), getBody(sym_ab.payload));
+    // "abc" -> body = (38 << 12) | (39 << 6) | 40
+    const sym_abc = Symbol.fromString("abc");
+    try testing.expectEqual(@as(u64, (38 << 12) | (39 << 6) | 40), getBody(sym_abc.payload));
+    // "ABC" -> body = (12 << 12) | (13 << 6) | 14
+    const sym_ABC = Symbol.fromString("ABC");
+    try testing.expectEqual(@as(u64, (12 << 12) | (13 << 6) | 14), getBody(sym_ABC.payload));
+}
+
 test "Symbol different strings produce different payloads" {
     const a = Symbol.fromString("a");
     const b = Symbol.fromString("b");
@@ -1228,7 +1242,9 @@ test "I256Object toI256Val conversion" {
 
 // ----- StorageType -----
 
-test "StorageType constants" {
+test "StorageType constants are raw u64 values" {
+    // StorageType is NOT a Val type - it's marshalled directly as u64
+    // per rs-soroban-env storage_type.rs: #[repr(u64)] with raw values
     try testing.expectEqual(@as(u64, 0), StorageType.temporary.payload);
     try testing.expectEqual(@as(u64, 1), StorageType.persistent.payload);
     try testing.expectEqual(@as(u64, 2), StorageType.instance.payload);
