@@ -333,6 +333,15 @@ pub const I128Val = extern struct {
     pub fn fromVal(v: Val) I128Val {
         return .{ .payload = v.payload };
     }
+
+    pub fn fromSmall(v: i56) I128Val {
+        const bits: u56 = @bitCast(v);
+        return .{ .payload = makeTaggedPayload(Tag.i128_small, @as(u64, bits)) };
+    }
+
+    pub fn toSmall(self: I128Val) i56 {
+        return @bitCast(@as(u56, @truncate(getBody(self.payload))));
+    }
 };
 
 pub const U256Val = extern struct {
@@ -993,6 +1002,32 @@ test "U128Val small round-trip zero" {
     const v = U128Val.fromSmall(0);
     try testing.expectEqual(@as(u56, 0), v.toSmall());
     try testing.expectEqual(Tag.u128_small, v.toVal().getTag());
+}
+
+// ----- I128Val small -----
+
+test "I128Val small round-trip zero" {
+    const v = I128Val.fromSmall(0);
+    try testing.expectEqual(@as(i56, 0), v.toSmall());
+    try testing.expectEqual(Tag.i128_small, v.toVal().getTag());
+}
+
+test "I128Val small round-trip positive" {
+    const v = I128Val.fromSmall(12345);
+    try testing.expectEqual(@as(i56, 12345), v.toSmall());
+    try testing.expectEqual(Tag.i128_small, v.toVal().getTag());
+}
+
+test "I128Val small round-trip negative" {
+    const v = I128Val.fromSmall(-1);
+    try testing.expectEqual(@as(i56, -1), v.toSmall());
+    try testing.expectEqual(Tag.i128_small, v.toVal().getTag());
+}
+
+test "I128Val small round-trip negative large" {
+    const v = I128Val.fromSmall(-99999);
+    try testing.expectEqual(@as(i56, -99999), v.toSmall());
+    try testing.expectEqual(Tag.i128_small, v.toVal().getTag());
 }
 
 // ----- U256Val small -----

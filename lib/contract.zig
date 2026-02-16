@@ -157,7 +157,7 @@ fn writeSpecTypeDef(w: *XdrWriter, spec_type: u32) void {
 //     outputs: array<SCSpecTypeDef>
 //       length prefix: 4
 //       per output: SCSpecTypeDef = 4
-fn functionSpecSize(comptime name: []const u8, comptime Fn: type) usize {
+fn functionSpecSize(comptime name: []const u8, comptime Fn: type, comptime param_names: []const []const u8) usize {
     const fn_info = @typeInfo(Fn).@"fn";
     const params = fn_info.params;
     const return_type = fn_info.return_type orelse val.Void;
@@ -167,12 +167,10 @@ fn functionSpecSize(comptime name: []const u8, comptime Fn: type) usize {
     size += xdrStringSize(0); // doc (empty)
     size += xdrStringSize(name.len); // function name
     size += 4; // inputs array length
-    inline for (params) |param| {
+    inline for (params, 0..) |param, i| {
         _ = param;
         size += xdrStringSize(0); // input doc (empty)
-        // Parameter names are not available at comptime in Zig,
-        // so we use positional names "0", "1", etc.
-        size += xdrStringSize(1); // input name (single digit)
+        size += xdrStringSize(param_names[i].len); // input name
         size += 4; // input type
     }
     size += 4; // outputs array length
@@ -184,7 +182,7 @@ fn functionSpecSize(comptime name: []const u8, comptime Fn: type) usize {
     return size;
 }
 
-fn writeFunctionSpec(w: *XdrWriter, comptime name: []const u8, comptime Fn: type) void {
+fn writeFunctionSpec(w: *XdrWriter, comptime name: []const u8, comptime Fn: type, comptime param_names: []const []const u8) void {
     const fn_info = @typeInfo(Fn).@"fn";
     const params = fn_info.params;
     const return_type = fn_info.return_type orelse val.Void;
@@ -197,8 +195,7 @@ fn writeFunctionSpec(w: *XdrWriter, comptime name: []const u8, comptime Fn: type
     w.writeU32(@intCast(params.len));
     inline for (params, 0..) |param, i| {
         w.writeString(""); // input doc
-        const digit: [1]u8 = .{'0' + @as(u8, @intCast(i))};
-        w.writeString(&digit); // input name
+        w.writeString(param_names[i]); // input name
         const T = param.type orelse val.Val;
         const spec = specTypeForValType(T) orelse SC_SPEC_TYPE_VAL;
         writeSpecTypeDef(w, spec);
@@ -289,6 +286,7 @@ pub fn exportContract(comptime ContractType: type) type {
 const FnDecl = struct {
     name: []const u8,
     fn_type: type,
+    param_names: []const []const u8,
 };
 
 fn getContractFunctions(comptime ContractType: type) []const FnDecl {
@@ -306,16 +304,72 @@ fn getContractFunctions(comptime ContractType: type) []const FnDecl {
             result = result ++ &[_]FnDecl{.{
                 .name = d.name,
                 .fn_type = T,
+                .param_names = getParamNames(ContractType, d.name, T),
             }};
         }
     }
     return result;
 }
 
+/// Check if `decl_name` equals `fn_name` + "_params".
+fn isParamsDecl(comptime decl_name: []const u8, comptime fn_name: []const u8) bool {
+    const suffix = "_params";
+    if (decl_name.len != fn_name.len + suffix.len) return false;
+    return std.mem.eql(u8, decl_name[0..fn_name.len], fn_name) and
+        std.mem.eql(u8, decl_name[fn_name.len..], suffix);
+}
+
+/// Look for a `<fn_name>_params` declaration in ContractType and return its
+/// name, or null if none exists.
+fn findParamsDecl(comptime ContractType: type, comptime fn_name: []const u8) ?[:0]const u8 {
+    const struct_decls = @typeInfo(ContractType).@"struct".decls;
+    inline for (struct_decls) |d| {
+        if (comptime isParamsDecl(d.name, fn_name)) {
+            return d.name;
+        }
+    }
+    return null;
+}
+
+/// Resolve parameter names for a contract function.
+///
+/// If the contract struct declares a companion `<fn_name>_params` array, those
+/// names are used in the XDR spec (and therefore visible in the Stellar CLI).
+/// Otherwise, positional names "0", "1", … are generated as a fallback.
+///
+/// Example:
+///   pub const mint_params = [_][]const u8{ "to", "amount" };
+///   pub fn mint(to: sdk.AddressObject, amount: sdk.I128Val) sdk.Void { … }
+fn getParamNames(comptime ContractType: type, comptime fn_name: []const u8, comptime FnType: type) []const []const u8 {
+    const fn_info = @typeInfo(FnType).@"fn";
+    const param_count = fn_info.params.len;
+
+    if (comptime findParamsDecl(ContractType, fn_name)) |params_decl_name| {
+        const user = @field(ContractType, params_decl_name);
+        if (user.len != param_count) {
+            @compileError("_params declaration must have the same number of elements as function parameters");
+        }
+        var names: [param_count][]const u8 = undefined;
+        inline for (0..param_count) |i| {
+            names[i] = user[i];
+        }
+        const result = names;
+        return &result;
+    }
+
+    // Default to positional names ("0", "1", …)
+    var defaults: [param_count][]const u8 = undefined;
+    inline for (0..param_count) |i| {
+        defaults[i] = &[1]u8{'0' + @as(u8, @intCast(i))};
+    }
+    const result = defaults;
+    return &result;
+}
+
 fn totalSpecSize(comptime decls: []const FnDecl) usize {
     var size: usize = 0;
     for (decls) |d| {
-        size += functionSpecSize(d.name, d.fn_type);
+        size += functionSpecSize(d.name, d.fn_type, d.param_names);
     }
     return size;
 }
@@ -323,7 +377,7 @@ fn totalSpecSize(comptime decls: []const FnDecl) usize {
 fn writeAllSpecs(buf: []u8, comptime decls: []const FnDecl) void {
     var w = XdrWriter.init(buf);
     for (decls) |d| {
-        writeFunctionSpec(&w, d.name, d.fn_type);
+        writeFunctionSpec(&w, d.name, d.fn_type, d.param_names);
     }
 }
 
@@ -501,7 +555,7 @@ test "env meta encoding" {
 test "functionSpecSize basic" {
     // A function with no params returning Void
     const NoArgsFn = fn () val.Void;
-    const size = comptime functionSpecSize("test_fn", NoArgsFn);
+    const size = comptime functionSpecSize("test_fn", NoArgsFn, &[_][]const u8{});
     // 4 (kind) + 4 (empty doc) + xdrStringSize("test_fn"=7) + 4 (inputs len) + 4 (outputs len=0)
     // xdrStringSize(7) = 4 + 7 + 1(pad) = 12
     try testing.expectEqual(@as(usize, 4 + 4 + 12 + 4 + 4), size);
@@ -510,7 +564,8 @@ test "functionSpecSize basic" {
 test "functionSpecSize with params" {
     // A function with 2 params returning U32Val
     const TwoArgsFn = fn (val.Symbol, val.U32Val) val.U32Val;
-    const size = comptime functionSpecSize("add", TwoArgsFn);
+    const param_names = [_][]const u8{ "0", "1" };
+    const size = comptime functionSpecSize("add", TwoArgsFn, &param_names);
     // 4 (kind) + 4 (doc) + xdrStringSize("add"=3) + 4 (inputs len)
     // + 2 inputs: each 4(doc) + xdrStringSize("0"=1) + 4(type)
     // + 4 (outputs len) + 4 (output type)
@@ -535,10 +590,11 @@ test "getContractFunctions finds pub fns" {
 
 test "write function spec produces valid XDR" {
     const Fn = fn (val.U32Val) val.U32Val;
-    const size = comptime functionSpecSize("inc", Fn);
+    const param_names = [_][]const u8{"0"};
+    const size = comptime functionSpecSize("inc", Fn, &param_names);
     var buf: [size]u8 = undefined;
     var w = XdrWriter.init(&buf);
-    writeFunctionSpec(&w, "inc", Fn);
+    writeFunctionSpec(&w, "inc", Fn, &param_names);
     try testing.expectEqual(size, w.pos);
 
     // Verify the kind discriminant
@@ -548,10 +604,11 @@ test "write function spec produces valid XDR" {
 test "write function spec complete encoding" {
     // Test a function: fn(val.U32Val) val.U32Val named "inc"
     const Fn = fn (val.U32Val) val.U32Val;
-    const size = comptime functionSpecSize("inc", Fn);
+    const param_names = [_][]const u8{"0"};
+    const size = comptime functionSpecSize("inc", Fn, &param_names);
     var buf: [size]u8 = undefined;
     var w = XdrWriter.init(&buf);
-    writeFunctionSpec(&w, "inc", Fn);
+    writeFunctionSpec(&w, "inc", Fn, &param_names);
 
     var pos: usize = 0;
     // kind = FUNCTION_V0 = 0
@@ -715,21 +772,21 @@ test "env meta kind is INTERFACE_VERSION" {
 
 test "functionSpecSize no-arg void return" {
     const Fn = fn () val.Void;
-    const size = comptime functionSpecSize("f", Fn);
+    const size = comptime functionSpecSize("f", Fn, &[_][]const u8{});
     // 4 (kind) + 4 (doc) + xdrStringSize(1) + 4 (inputs len) + 4 (outputs len, void=0)
     try testing.expectEqual(@as(usize, 4 + 4 + 8 + 4 + 4), size);
 }
 
 test "functionSpecSize with non-void return" {
     const Fn = fn () val.U32Val;
-    const size = comptime functionSpecSize("g", Fn);
+    const size = comptime functionSpecSize("g", Fn, &[_][]const u8{});
     // 4 (kind) + 4 (doc) + xdrStringSize(1) + 4 (inputs) + 4 (outputs len) + 4 (output type)
     try testing.expectEqual(@as(usize, 4 + 4 + 8 + 4 + 4 + 4), size);
 }
 
 test "totalSpecSize with empty decls" {
     const decls: []const FnDecl = &.{};
-    try testing.expectEqual(@as(usize, 0), totalSpecSize(decls));
+    try testing.expectEqual(@as(usize, 0), comptime totalSpecSize(decls));
 }
 
 test "getContractFunctions empty struct" {
@@ -796,30 +853,70 @@ test "SC_SPEC_TYPE constants match XDR spec" {
 
 test "write function spec no params void return" {
     const Fn = fn () val.Void;
-    const size = comptime functionSpecSize("noop", Fn);
+    const size = comptime functionSpecSize("noop", Fn, &[_][]const u8{});
     var buf: [size]u8 = undefined;
     var w = XdrWriter.init(&buf);
-    writeFunctionSpec(&w, "noop", Fn);
+    writeFunctionSpec(&w, "noop", Fn, &[_][]const u8{});
     try testing.expectEqual(size, w.pos);
     try testing.expectEqual(SC_SPEC_ENTRY_FUNCTION_V0, std.mem.readInt(u32, buf[0..4], .big));
 }
 
 test "write function spec consumes exact buffer" {
     const Fn = fn (val.Symbol, val.U32Val) val.Bool;
-    const size = comptime functionSpecSize("check", Fn);
+    const param_names = [_][]const u8{ "0", "1" };
+    const size = comptime functionSpecSize("check", Fn, &param_names);
     var buf: [size]u8 = undefined;
     var w = XdrWriter.init(&buf);
-    writeFunctionSpec(&w, "check", Fn);
+    writeFunctionSpec(&w, "check", Fn, &param_names);
     try testing.expectEqual(size, w.pos);
 }
 
 test "functionSpecSize all params included" {
     // Verify that Val as first param is NOT skipped - it's a real parameter
     const Fn = fn (val.Val, val.Symbol) val.U32Val;
-    const size = comptime functionSpecSize("f", Fn);
+    const param_names = [_][]const u8{ "0", "1" };
+    const size = comptime functionSpecSize("f", Fn, &param_names);
     // 4 (kind) + 4 (doc) + xdrStringSize("f"=1) + 4 (inputs len)
     // + 2 inputs: each 4(doc) + xdrStringSize(1) + 4(type)
     // + 4 (outputs len) + 4 (output type)
     // = 4 + 4 + 8 + 4 + 2*(4 + 8 + 4) + 4 + 4 = 60
     try testing.expectEqual(@as(usize, 60), size);
+}
+
+test "functionSpecSize with named params" {
+    const Fn = fn (val.AddressObject, val.I128Val) val.Void;
+    const param_names = [_][]const u8{ "to", "amount" };
+    const size = comptime functionSpecSize("mint", Fn, &param_names);
+    // 4 (kind) + 4 (doc) + xdrStringSize("mint"=4) + 4 (inputs len)
+    // + input "to": 4(doc) + xdrStringSize(2) + 4(type) = 4 + 8 + 4 = 16
+    // + input "amount": 4(doc) + xdrStringSize(6) + 4(type) = 4 + 12 + 4 = 20
+    // + 4 (outputs len, void=0)
+    // xdrStringSize(4) = 4 + 4 = 8
+    // = 4 + 4 + 8 + 4 + 16 + 20 + 4 = 60
+    try testing.expectEqual(@as(usize, 60), size);
+}
+
+test "getContractFunctions picks up _params decl" {
+    const TestContract = struct {
+        pub const greet_params = [_][]const u8{ "name", "count" };
+        pub fn greet(_: val.StringObject, _: val.U32Val) val.Void {
+            return val.Void.VOID;
+        }
+    };
+    const fns = comptime getContractFunctions(TestContract);
+    try testing.expectEqual(@as(usize, 1), fns.len);
+    try testing.expectEqualStrings("name", fns[0].param_names[0]);
+    try testing.expectEqualStrings("count", fns[0].param_names[1]);
+}
+
+test "getContractFunctions defaults to positional names" {
+    const TestContract = struct {
+        pub fn add(_: val.U32Val, _: val.U32Val) val.U32Val {
+            return val.U32Val.fromU32(0);
+        }
+    };
+    const fns = comptime getContractFunctions(TestContract);
+    try testing.expectEqual(@as(usize, 1), fns.len);
+    try testing.expectEqualStrings("0", fns[0].param_names[0]);
+    try testing.expectEqualStrings("1", fns[0].param_names[1]);
 }

@@ -57,7 +57,7 @@ pub fn u128ToObj(v: u128) U128Object {
 pub fn i128FromObj(obj: I128Object) i128 {
     const lo: u64 = env.int.obj_to_i128_lo64(obj);
     const hi: i64 = env.int.obj_to_i128_hi64(obj);
-    return @as(i128, hi) << 64 | @as(i128, @as(u128, lo));
+    return @as(i128, hi) << 64 | @as(i128, lo);
 }
 
 pub fn i128ToObj(v: i128) I128Object {
@@ -65,6 +65,24 @@ pub fn i128ToObj(v: i128) I128Object {
     const lo: u64 = @truncate(bits);
     const hi: i64 = @bitCast(@as(u64, @truncate(bits >> 64)));
     return env.int.obj_from_i128_pieces(hi, lo);
+}
+
+// ---- i128 Val (small or object) ----
+
+pub fn i128FromVal(v: val.I128Val) i128 {
+    if (v.toVal().getTag() == val.Tag.i128_small) {
+        return @as(i128, v.toSmall());
+    }
+    return i128FromObj(val.I128Object.fromVal(v.toVal()));
+}
+
+pub fn i128ToVal(v: i128) val.I128Val {
+    const min_small: i128 = -(1 << 55);
+    const max_small: i128 = (1 << 55) - 1;
+    if (v >= min_small and v <= max_small) {
+        return val.I128Val.fromSmall(@intCast(v));
+    }
+    return i128ToObj(v).toI128Val();
 }
 
 // ---- u256 (4x u64, big-endian order: hi_hi, hi_lo, lo_hi, lo_lo) ----

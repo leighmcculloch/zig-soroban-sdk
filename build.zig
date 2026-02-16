@@ -36,6 +36,7 @@ pub fn build(b: *std.Build) void {
     const examples = [_][]const u8{
         "hello",
         "increment",
+        "token",
     };
 
     const examples_step = b.step("examples", "Build example contracts");
