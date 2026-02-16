@@ -2,8 +2,8 @@
 //
 // A Val is a 64-bit tagged value. The low 8 bits contain the tag,
 // and the upper 56 bits contain the body. The body is further split
-// into a 32-bit "major" part (bits 8-39) and a 24-bit "minor" part
-// (bits 40-63).
+// into a 24-bit "minor" part (bits 8-31) and a 32-bit "major" part
+// (bits 32-63).
 
 const TAG_MASK: u64 = 0xff;
 const BODY_BITS: u6 = 8;
@@ -66,11 +66,11 @@ fn getBody(payload: u64) u64 {
 }
 
 fn getMajor(payload: u64) u32 {
-    return @truncate((payload >> BODY_BITS) & MAJOR_MASK);
+    return @truncate(payload >> (BODY_BITS + MINOR_BITS));
 }
 
 fn getMinor(payload: u64) u24 {
-    return @truncate((payload >> (BODY_BITS + MAJOR_BITS)) & MINOR_MASK);
+    return @truncate((payload >> BODY_BITS) & MINOR_MASK);
 }
 
 // ---------------------------------------------------------------------
@@ -165,7 +165,7 @@ pub const Error = extern struct {
     }
 
     pub fn fromParts(error_type: u24, error_code: u32) Error {
-        const body: u64 = @as(u64, error_code) | (@as(u64, error_type) << MAJOR_BITS);
+        const body: u64 = @as(u64, error_type) | (@as(u64, error_code) << MINOR_BITS);
         return .{ .payload = makeTaggedPayload(Tag.error_, body) };
     }
 
@@ -194,7 +194,7 @@ pub const U32Val = extern struct {
     }
 
     pub fn fromU32(v: u32) U32Val {
-        return .{ .payload = makeTaggedPayload(Tag.u32_val, @as(u64, v)) };
+        return .{ .payload = makeTaggedPayload(Tag.u32_val, @as(u64, v) << MINOR_BITS) };
     }
 
     pub fn toU32(self: U32Val) u32 {
@@ -219,7 +219,7 @@ pub const I32Val = extern struct {
 
     pub fn fromI32(v: i32) I32Val {
         const bits: u32 = @bitCast(v);
-        return .{ .payload = makeTaggedPayload(Tag.i32_val, @as(u64, bits)) };
+        return .{ .payload = makeTaggedPayload(Tag.i32_val, @as(u64, bits) << MINOR_BITS) };
     }
 
     pub fn toI32(self: I32Val) i32 {
@@ -445,12 +445,12 @@ pub const ContractTTLExtension = extern struct {
 // ---------------------------------------------------------------------
 // Object types (tags 64-78)
 //
-// All objects use the major part (bits 8-39) as the object handle.
-// The minor part (bits 40-63) is reserved (zero in current usage).
+// All objects use the major part (bits 32-63) as the object handle.
+// The minor part (bits 8-31) is reserved (zero in current usage).
 // ---------------------------------------------------------------------
 
 fn makeObjectPayload(tag: Tag, handle: u32) u64 {
-    return makeTaggedPayload(tag, @as(u64, handle));
+    return makeTaggedPayload(tag, @as(u64, handle) << MINOR_BITS);
 }
 
 fn objectHandle(payload: u64) u32 {
