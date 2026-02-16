@@ -220,7 +220,7 @@ fn writeFunctionSpec(w: *XdrWriter, comptime name: []const u8, comptime Fn: type
 
 // Current Soroban protocol version. This should be kept in sync with
 // the version of the Soroban host environment this SDK targets.
-pub const PROTOCOL_VERSION: u32 = 22;
+pub const PROTOCOL_VERSION: u32 = 25;
 pub const PRE_RELEASE_VERSION: u32 = 0;
 
 // SCEnvMetaEntry size:
