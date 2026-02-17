@@ -477,7 +477,92 @@ fn exportFunction(comptime ContractType: type, comptime name: []const u8) void {
             };
             @export(&f.exported, .{ .name = name, .linkage = .strong });
         },
-        else => @compileError("contract functions with more than 5 parameters are not yet supported"),
+        6 => {
+            const f = struct {
+                fn exported(a0: u64, a1: u64, a2: u64, a3: u64, a4: u64, a5: u64) callconv(.c) u64 {
+                    const P0 = params[0].type orelse Val;
+                    const P1 = params[1].type orelse Val;
+                    const P2 = params[2].type orelse Val;
+                    const P3 = params[3].type orelse Val;
+                    const P4 = params[4].type orelse Val;
+                    const P5 = params[5].type orelse Val;
+                    const result = func(fromU64(P0, a0), fromU64(P1, a1), fromU64(P2, a2), fromU64(P3, a3), fromU64(P4, a4), fromU64(P5, a5));
+                    return resultToU64(ReturnType, result);
+                }
+            };
+            @export(&f.exported, .{ .name = name, .linkage = .strong });
+        },
+        7 => {
+            const f = struct {
+                fn exported(a0: u64, a1: u64, a2: u64, a3: u64, a4: u64, a5: u64, a6: u64) callconv(.c) u64 {
+                    const P0 = params[0].type orelse Val;
+                    const P1 = params[1].type orelse Val;
+                    const P2 = params[2].type orelse Val;
+                    const P3 = params[3].type orelse Val;
+                    const P4 = params[4].type orelse Val;
+                    const P5 = params[5].type orelse Val;
+                    const P6 = params[6].type orelse Val;
+                    const result = func(fromU64(P0, a0), fromU64(P1, a1), fromU64(P2, a2), fromU64(P3, a3), fromU64(P4, a4), fromU64(P5, a5), fromU64(P6, a6));
+                    return resultToU64(ReturnType, result);
+                }
+            };
+            @export(&f.exported, .{ .name = name, .linkage = .strong });
+        },
+        8 => {
+            const f = struct {
+                fn exported(a0: u64, a1: u64, a2: u64, a3: u64, a4: u64, a5: u64, a6: u64, a7: u64) callconv(.c) u64 {
+                    const P0 = params[0].type orelse Val;
+                    const P1 = params[1].type orelse Val;
+                    const P2 = params[2].type orelse Val;
+                    const P3 = params[3].type orelse Val;
+                    const P4 = params[4].type orelse Val;
+                    const P5 = params[5].type orelse Val;
+                    const P6 = params[6].type orelse Val;
+                    const P7 = params[7].type orelse Val;
+                    const result = func(fromU64(P0, a0), fromU64(P1, a1), fromU64(P2, a2), fromU64(P3, a3), fromU64(P4, a4), fromU64(P5, a5), fromU64(P6, a6), fromU64(P7, a7));
+                    return resultToU64(ReturnType, result);
+                }
+            };
+            @export(&f.exported, .{ .name = name, .linkage = .strong });
+        },
+        9 => {
+            const f = struct {
+                fn exported(a0: u64, a1: u64, a2: u64, a3: u64, a4: u64, a5: u64, a6: u64, a7: u64, a8: u64) callconv(.c) u64 {
+                    const P0 = params[0].type orelse Val;
+                    const P1 = params[1].type orelse Val;
+                    const P2 = params[2].type orelse Val;
+                    const P3 = params[3].type orelse Val;
+                    const P4 = params[4].type orelse Val;
+                    const P5 = params[5].type orelse Val;
+                    const P6 = params[6].type orelse Val;
+                    const P7 = params[7].type orelse Val;
+                    const P8 = params[8].type orelse Val;
+                    const result = func(fromU64(P0, a0), fromU64(P1, a1), fromU64(P2, a2), fromU64(P3, a3), fromU64(P4, a4), fromU64(P5, a5), fromU64(P6, a6), fromU64(P7, a7), fromU64(P8, a8));
+                    return resultToU64(ReturnType, result);
+                }
+            };
+            @export(&f.exported, .{ .name = name, .linkage = .strong });
+        },
+        10 => {
+            const f = struct {
+                fn exported(a0: u64, a1: u64, a2: u64, a3: u64, a4: u64, a5: u64, a6: u64, a7: u64, a8: u64, a9: u64) callconv(.c) u64 {
+                    const P0 = params[0].type orelse Val;
+                    const P1 = params[1].type orelse Val;
+                    const P2 = params[2].type orelse Val;
+                    const P3 = params[3].type orelse Val;
+                    const P4 = params[4].type orelse Val;
+                    const P5 = params[5].type orelse Val;
+                    const P6 = params[6].type orelse Val;
+                    const P7 = params[7].type orelse Val;
+                    const P8 = params[8].type orelse Val;
+                    const P9 = params[9].type orelse Val;
+                    const result = func(fromU64(P0, a0), fromU64(P1, a1), fromU64(P2, a2), fromU64(P3, a3), fromU64(P4, a4), fromU64(P5, a5), fromU64(P6, a6), fromU64(P7, a7), fromU64(P8, a8), fromU64(P9, a9));
+                    return resultToU64(ReturnType, result);
+                }
+            };
+            @export(&f.exported, .{ .name = name, .linkage = .strong });
+        },
+        else => @compileError("contract functions with more than 10 parameters are not yet supported"),
     }
 }
 
