@@ -31,14 +31,6 @@ pub const Symbol = val.Symbol;
 pub const StorageType = val.StorageType;
 pub const ContractTTLExtension = val.ContractTTLExtension;
 
-pub const U64Object = val.U64Object;
-pub const I64Object = val.I64Object;
-pub const TimepointObject = val.TimepointObject;
-pub const DurationObject = val.DurationObject;
-pub const U128Object = val.U128Object;
-pub const I128Object = val.I128Object;
-pub const U256Object = val.U256Object;
-pub const I256Object = val.I256Object;
 pub const StringObject = val.StringObject;
 pub const SymbolObject = val.SymbolObject;
 pub const MuxedAddressObject = val.MuxedAddressObject;
