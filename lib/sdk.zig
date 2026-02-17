@@ -52,6 +52,7 @@ pub const cmp = compare.cmp;
 pub const callWithArgs = cross_call.callWithArgs;
 pub const tryCallWithArgs = cross_call.tryCallWithArgs;
 pub const asVal = val.asVal;
+pub const emit = events.emit;
 
 test {
     _ = val;
