@@ -107,6 +107,16 @@ pub const Val = extern struct {
 
 const val = @This();
 
+/// Convert any Val-compatible type to Val. Accepts Val itself (returned as-is)
+/// or any extern struct with a `payload: u64` field (Symbol, Vec, Map, Bytes,
+/// Address, U32Val, I32Val, etc.).
+pub fn asVal(x: anytype) Val {
+    const T = @TypeOf(x);
+    if (T == Val) return x;
+    if (@hasField(T, "payload")) return .{ .payload = x.payload };
+    @compileError("asVal: unsupported type " ++ @typeName(T));
+}
+
 // ---------------------------------------------------------------------
 // Bool
 // ---------------------------------------------------------------------

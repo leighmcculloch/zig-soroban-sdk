@@ -36,18 +36,18 @@ pub const Vec = extern struct {
     }
 
     /// Set the element at index `i`, returning the updated Vec.
-    pub fn set(self: *Vec, i: u32, x: val.Val) void {
-        self.* = env.vec.vec_put(self.*, val.U32Val.fromU32(i), x);
+    pub fn set(self: *Vec, i: u32, x: anytype) void {
+        self.* = env.vec.vec_put(self.*, val.U32Val.fromU32(i), val.asVal(x));
     }
 
     /// Append an element to the back.
-    pub fn pushBack(self: *Vec, x: val.Val) void {
-        self.* = env.vec.vec_push_back(self.*, x);
+    pub fn pushBack(self: *Vec, x: anytype) void {
+        self.* = env.vec.vec_push_back(self.*, val.asVal(x));
     }
 
     /// Prepend an element to the front.
-    pub fn pushFront(self: *Vec, x: val.Val) void {
-        self.* = env.vec.vec_push_front(self.*, x);
+    pub fn pushFront(self: *Vec, x: anytype) void {
+        self.* = env.vec.vec_push_front(self.*, val.asVal(x));
     }
 
     /// Remove and discard the last element.
@@ -71,8 +71,8 @@ pub const Vec = extern struct {
     }
 
     /// Insert an element at index `i`, shifting subsequent elements right.
-    pub fn insert(self: *Vec, i: u32, x: val.Val) void {
-        self.* = env.vec.vec_insert(self.*, val.U32Val.fromU32(i), x);
+    pub fn insert(self: *Vec, i: u32, x: anytype) void {
+        self.* = env.vec.vec_insert(self.*, val.U32Val.fromU32(i), val.asVal(x));
     }
 
     /// Delete the element at index `i`, shifting subsequent elements left.

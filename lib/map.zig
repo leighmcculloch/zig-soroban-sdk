@@ -27,23 +27,23 @@ pub const Map = extern struct {
     }
 
     /// Get the value for a key. Traps if the key is not found.
-    pub fn get(self: Map, key: val.Val) val.Val {
-        return env.map.map_get(self, key);
+    pub fn get(self: Map, key: anytype) val.Val {
+        return env.map.map_get(self, val.asVal(key));
     }
 
     /// Insert or update a key/value pair.
-    pub fn set(self: *Map, key: val.Val, value: val.Val) void {
-        self.* = env.map.map_put(self.*, key, value);
+    pub fn set(self: *Map, key: anytype, value: anytype) void {
+        self.* = env.map.map_put(self.*, val.asVal(key), val.asVal(value));
     }
 
     /// Check whether a key exists.
-    pub fn has(self: Map, key: val.Val) bool {
-        return env.map.map_has(self, key).toBool();
+    pub fn has(self: Map, key: anytype) bool {
+        return env.map.map_has(self, val.asVal(key)).toBool();
     }
 
     /// Remove a key/value pair. Traps if the key is not found.
-    pub fn del(self: *Map, key: val.Val) void {
-        self.* = env.map.map_del(self.*, key);
+    pub fn del(self: *Map, key: anytype) void {
+        self.* = env.map.map_del(self.*, val.asVal(key));
     }
 
     /// Return the number of entries.
