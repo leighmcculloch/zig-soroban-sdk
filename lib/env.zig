@@ -21,7 +21,7 @@ pub const context = struct {
 
     ///    Records a contract event. `topics` is expected to be a `SCVec` with length <= 4 that cannot
     ///    contain `Vec`, `Map`, or `Bytes` with length > 32.
-    pub const contract_event = @extern(*const fn (val.VecObject, val.Val) callconv(.c) val.Void, .{ .name = "1", .library_name = "x" });
+    pub const contract_event = @extern(*const fn (val.Vec, val.Val) callconv(.c) val.Void, .{ .name = "1", .library_name = "x" });
 
     ///    Return the protocol version of the current ledger as a u32.
     pub const get_ledger_version = @extern(*const fn () callconv(.c) val.U32Val, .{ .name = "2", .library_name = "x" });
@@ -38,10 +38,10 @@ pub const context = struct {
 
     ///    Return the network id (sha256 hash of network passphrase) of the current ledger as `Bytes`.
     ///    The value is always 32 bytes in length.
-    pub const get_ledger_network_id = @extern(*const fn () callconv(.c) val.BytesObject, .{ .name = "6", .library_name = "x" });
+    pub const get_ledger_network_id = @extern(*const fn () callconv(.c) val.Bytes, .{ .name = "6", .library_name = "x" });
 
     ///    Get the Address object for the current contract.
-    pub const get_current_contract_address = @extern(*const fn () callconv(.c) val.AddressObject, .{ .name = "7", .library_name = "x" });
+    pub const get_current_contract_address = @extern(*const fn () callconv(.c) val.Address, .{ .name = "7", .library_name = "x" });
 
     ///    Returns the max ledger sequence that an entry can live to (inclusive).
     pub const get_max_live_until_ledger = @extern(*const fn () callconv(.c) val.U32Val, .{ .name = "8", .library_name = "x" });
@@ -87,11 +87,11 @@ pub const int = struct {
     pub const obj_from_u256_pieces = @extern(*const fn (u64, u64, u64, u64) callconv(.c) val.U256Object, .{ .name = "9", .library_name = "i" });
 
     ///    Create a U256 `Val` from its representation as a byte array in big endian.
-    pub const u256_val_from_be_bytes = @extern(*const fn (val.BytesObject) callconv(.c) val.U256Val, .{ .name = "a", .library_name = "i" });
+    pub const u256_val_from_be_bytes = @extern(*const fn (val.Bytes) callconv(.c) val.U256Val, .{ .name = "a", .library_name = "i" });
 
     ///    Return the memory representation of this U256 `Val` as a byte array in big endian byte
     ///    order.
-    pub const u256_val_to_be_bytes = @extern(*const fn (val.U256Val) callconv(.c) val.BytesObject, .{ .name = "b", .library_name = "i" });
+    pub const u256_val_to_be_bytes = @extern(*const fn (val.U256Val) callconv(.c) val.Bytes, .{ .name = "b", .library_name = "i" });
 
     ///    Extract the highest 64-bits (bits 192-255) from an object containing a u256.
     pub const obj_to_u256_hi_hi = @extern(*const fn (val.U256Object) callconv(.c) u64, .{ .name = "c", .library_name = "i" });
@@ -109,11 +109,11 @@ pub const int = struct {
     pub const obj_from_i256_pieces = @extern(*const fn (i64, u64, u64, u64) callconv(.c) val.I256Object, .{ .name = "g", .library_name = "i" });
 
     ///    Create a I256 `Val` from its representation as a byte array in big endian.
-    pub const i256_val_from_be_bytes = @extern(*const fn (val.BytesObject) callconv(.c) val.I256Val, .{ .name = "h", .library_name = "i" });
+    pub const i256_val_from_be_bytes = @extern(*const fn (val.Bytes) callconv(.c) val.I256Val, .{ .name = "h", .library_name = "i" });
 
     ///    Return the memory representation of this I256 `Val` as a byte array in big endian byte
     ///    order.
-    pub const i256_val_to_be_bytes = @extern(*const fn (val.I256Val) callconv(.c) val.BytesObject, .{ .name = "i", .library_name = "i" });
+    pub const i256_val_to_be_bytes = @extern(*const fn (val.I256Val) callconv(.c) val.Bytes, .{ .name = "i", .library_name = "i" });
 
     ///    Extract the highest 64-bits (bits 192-255) from an object containing an i256.
     pub const obj_to_i256_hi_hi = @extern(*const fn (val.I256Object) callconv(.c) i64, .{ .name = "j", .library_name = "i" });
@@ -211,46 +211,46 @@ pub const int = struct {
 
 pub const map = struct {
     ///    Create an empty new map.
-    pub const map_new = @extern(*const fn () callconv(.c) val.MapObject, .{ .name = "_", .library_name = "m" });
+    pub const map_new = @extern(*const fn () callconv(.c) val.Map, .{ .name = "_", .library_name = "m" });
 
     ///    Insert a key/value mapping into an existing map, and return the map object handle. If the
     ///    map already has a mapping for the given key, the previous value is overwritten.
-    pub const map_put = @extern(*const fn (val.MapObject, val.Val, val.Val) callconv(.c) val.MapObject, .{ .name = "0", .library_name = "m" });
+    pub const map_put = @extern(*const fn (val.Map, val.Val, val.Val) callconv(.c) val.Map, .{ .name = "0", .library_name = "m" });
 
     ///    Get the value for a key from a map. Traps if key is not found.
-    pub const map_get = @extern(*const fn (val.MapObject, val.Val) callconv(.c) val.Val, .{ .name = "1", .library_name = "m" });
+    pub const map_get = @extern(*const fn (val.Map, val.Val) callconv(.c) val.Val, .{ .name = "1", .library_name = "m" });
 
     ///    Remove a key/value mapping from a map if it exists, traps if doesn't.
-    pub const map_del = @extern(*const fn (val.MapObject, val.Val) callconv(.c) val.MapObject, .{ .name = "2", .library_name = "m" });
+    pub const map_del = @extern(*const fn (val.Map, val.Val) callconv(.c) val.Map, .{ .name = "2", .library_name = "m" });
 
     ///    Get the size of a map.
-    pub const map_len = @extern(*const fn (val.MapObject) callconv(.c) val.U32Val, .{ .name = "3", .library_name = "m" });
+    pub const map_len = @extern(*const fn (val.Map) callconv(.c) val.U32Val, .{ .name = "3", .library_name = "m" });
 
     ///    Test for the presence of a key in a map. Returns Bool.
-    pub const map_has = @extern(*const fn (val.MapObject, val.Val) callconv(.c) val.Bool, .{ .name = "4", .library_name = "m" });
+    pub const map_has = @extern(*const fn (val.Map, val.Val) callconv(.c) val.Bool, .{ .name = "4", .library_name = "m" });
 
     ///    Get the key from a map at position `i`. If `i` is an invalid position, return ScError.
-    pub const map_key_by_pos = @extern(*const fn (val.MapObject, val.U32Val) callconv(.c) val.Val, .{ .name = "5", .library_name = "m" });
+    pub const map_key_by_pos = @extern(*const fn (val.Map, val.U32Val) callconv(.c) val.Val, .{ .name = "5", .library_name = "m" });
 
     ///    Get the value from a map at position `i`. If `i` is an invalid position, return ScError.
-    pub const map_val_by_pos = @extern(*const fn (val.MapObject, val.U32Val) callconv(.c) val.Val, .{ .name = "6", .library_name = "m" });
+    pub const map_val_by_pos = @extern(*const fn (val.Map, val.U32Val) callconv(.c) val.Val, .{ .name = "6", .library_name = "m" });
 
     ///    Return a new vector containing all the keys in a map. The new vector is ordered in the
     ///    original map's key-sorted order.
-    pub const map_keys = @extern(*const fn (val.MapObject) callconv(.c) val.VecObject, .{ .name = "7", .library_name = "m" });
+    pub const map_keys = @extern(*const fn (val.Map) callconv(.c) val.Vec, .{ .name = "7", .library_name = "m" });
 
     ///    Return a new vector containing all the values in a map. The new vector is ordered in the
     ///    original map's key-sorted order.
-    pub const map_values = @extern(*const fn (val.MapObject) callconv(.c) val.VecObject, .{ .name = "8", .library_name = "m" });
+    pub const map_values = @extern(*const fn (val.Map) callconv(.c) val.Vec, .{ .name = "8", .library_name = "m" });
 
     ///    Return a new map initialized from a pair of equal-length arrays, one for keys and one for
     ///    values, given by a pair of linear-memory addresses and a length in Vals.
-    pub const map_new_from_linear_memory = @extern(*const fn (val.U32Val, val.U32Val, val.U32Val) callconv(.c) val.MapObject, .{ .name = "9", .library_name = "m" });
+    pub const map_new_from_linear_memory = @extern(*const fn (val.U32Val, val.U32Val, val.U32Val) callconv(.c) val.Map, .{ .name = "9", .library_name = "m" });
 
     ///    Copy Vals from `map` to the array `vals_pos`, selecting only the keys identified by the
     ///    array `keys_pos`. Both arrays have `len` elements and are identified by linear-memory
     ///    addresses.
-    pub const map_unpack_to_linear_memory = @extern(*const fn (val.MapObject, val.U32Val, val.U32Val, val.U32Val) callconv(.c) val.Void, .{ .name = "a", .library_name = "m" });
+    pub const map_unpack_to_linear_memory = @extern(*const fn (val.Map, val.U32Val, val.U32Val, val.U32Val) callconv(.c) val.Void, .{ .name = "a", .library_name = "m" });
 
 };
 
@@ -260,75 +260,75 @@ pub const map = struct {
 
 pub const vec = struct {
     ///    Creates an empty new vector.
-    pub const vec_new = @extern(*const fn () callconv(.c) val.VecObject, .{ .name = "_", .library_name = "v" });
+    pub const vec_new = @extern(*const fn () callconv(.c) val.Vec, .{ .name = "_", .library_name = "v" });
 
     ///    Update the value at index `i` in the vector. Return the new vector. Trap if the index is
     ///    out of bounds.
-    pub const vec_put = @extern(*const fn (val.VecObject, val.U32Val, val.Val) callconv(.c) val.VecObject, .{ .name = "0", .library_name = "v" });
+    pub const vec_put = @extern(*const fn (val.Vec, val.U32Val, val.Val) callconv(.c) val.Vec, .{ .name = "0", .library_name = "v" });
 
     ///    Returns the element at index `i` of the vector. Traps if the index is out of bound.
-    pub const vec_get = @extern(*const fn (val.VecObject, val.U32Val) callconv(.c) val.Val, .{ .name = "1", .library_name = "v" });
+    pub const vec_get = @extern(*const fn (val.Vec, val.U32Val) callconv(.c) val.Val, .{ .name = "1", .library_name = "v" });
 
     ///    Delete an element in a vector at index `i`, shifting all elements after it to the left.
     ///    Return the new vector. Traps if the index is out of bound.
-    pub const vec_del = @extern(*const fn (val.VecObject, val.U32Val) callconv(.c) val.VecObject, .{ .name = "2", .library_name = "v" });
+    pub const vec_del = @extern(*const fn (val.Vec, val.U32Val) callconv(.c) val.Vec, .{ .name = "2", .library_name = "v" });
 
     ///    Returns length of the vector.
-    pub const vec_len = @extern(*const fn (val.VecObject) callconv(.c) val.U32Val, .{ .name = "3", .library_name = "v" });
+    pub const vec_len = @extern(*const fn (val.Vec) callconv(.c) val.U32Val, .{ .name = "3", .library_name = "v" });
 
     ///    Push a value to the front of a vector.
-    pub const vec_push_front = @extern(*const fn (val.VecObject, val.Val) callconv(.c) val.VecObject, .{ .name = "4", .library_name = "v" });
+    pub const vec_push_front = @extern(*const fn (val.Vec, val.Val) callconv(.c) val.Vec, .{ .name = "4", .library_name = "v" });
 
     ///    Removes the first element from the vector and returns the new vector. Traps if original
     ///    vector is empty.
-    pub const vec_pop_front = @extern(*const fn (val.VecObject) callconv(.c) val.VecObject, .{ .name = "5", .library_name = "v" });
+    pub const vec_pop_front = @extern(*const fn (val.Vec) callconv(.c) val.Vec, .{ .name = "5", .library_name = "v" });
 
     ///    Appends an element to the back of the vector.
-    pub const vec_push_back = @extern(*const fn (val.VecObject, val.Val) callconv(.c) val.VecObject, .{ .name = "6", .library_name = "v" });
+    pub const vec_push_back = @extern(*const fn (val.Vec, val.Val) callconv(.c) val.Vec, .{ .name = "6", .library_name = "v" });
 
     ///    Removes the last element from the vector and returns the new vector. Traps if original
     ///    vector is empty.
-    pub const vec_pop_back = @extern(*const fn (val.VecObject) callconv(.c) val.VecObject, .{ .name = "7", .library_name = "v" });
+    pub const vec_pop_back = @extern(*const fn (val.Vec) callconv(.c) val.Vec, .{ .name = "7", .library_name = "v" });
 
     ///    Return the first element in the vector. Traps if the vector is empty
-    pub const vec_front = @extern(*const fn (val.VecObject) callconv(.c) val.Val, .{ .name = "8", .library_name = "v" });
+    pub const vec_front = @extern(*const fn (val.Vec) callconv(.c) val.Val, .{ .name = "8", .library_name = "v" });
 
     ///    Return the last element in the vector. Traps if the vector is empty
-    pub const vec_back = @extern(*const fn (val.VecObject) callconv(.c) val.Val, .{ .name = "9", .library_name = "v" });
+    pub const vec_back = @extern(*const fn (val.Vec) callconv(.c) val.Val, .{ .name = "9", .library_name = "v" });
 
     ///    Inserts an element at index `i` within the vector, shifting all elements after it to the
     ///    right. Traps if the index is out of bound
-    pub const vec_insert = @extern(*const fn (val.VecObject, val.U32Val, val.Val) callconv(.c) val.VecObject, .{ .name = "a", .library_name = "v" });
+    pub const vec_insert = @extern(*const fn (val.Vec, val.U32Val, val.Val) callconv(.c) val.Vec, .{ .name = "a", .library_name = "v" });
 
     ///    Clone the vector `v1`, then moves all the elements of vector `v2` into it. Return the new
     ///    vector. Traps if number of elements in the vector overflows a u32.
-    pub const vec_append = @extern(*const fn (val.VecObject, val.VecObject) callconv(.c) val.VecObject, .{ .name = "b", .library_name = "v" });
+    pub const vec_append = @extern(*const fn (val.Vec, val.Vec) callconv(.c) val.Vec, .{ .name = "b", .library_name = "v" });
 
     ///    Copy the elements from `start` index until `end` index, exclusive, in the vector and create
     ///    a new vector from it. Return the new vector. Traps if the index is out of bound.
-    pub const vec_slice = @extern(*const fn (val.VecObject, val.U32Val, val.U32Val) callconv(.c) val.VecObject, .{ .name = "c", .library_name = "v" });
+    pub const vec_slice = @extern(*const fn (val.Vec, val.U32Val, val.U32Val) callconv(.c) val.Vec, .{ .name = "c", .library_name = "v" });
 
     ///    Get the index of the first occurrence of a given element in the vector. Returns the u32
     ///    index of the value if it's there. Otherwise, it returns `Void`.
-    pub const vec_first_index_of = @extern(*const fn (val.VecObject, val.Val) callconv(.c) val.Val, .{ .name = "d", .library_name = "v" });
+    pub const vec_first_index_of = @extern(*const fn (val.Vec, val.Val) callconv(.c) val.Val, .{ .name = "d", .library_name = "v" });
 
     ///    Get the index of the last occurrence of a given element in the vector. Returns the u32
     ///    index of the value if it's there. Otherwise, it returns `Void`.
-    pub const vec_last_index_of = @extern(*const fn (val.VecObject, val.Val) callconv(.c) val.Val, .{ .name = "e", .library_name = "v" });
+    pub const vec_last_index_of = @extern(*const fn (val.Vec, val.Val) callconv(.c) val.Val, .{ .name = "e", .library_name = "v" });
 
     ///    Binary search a sorted vector for a given element. If it exists, the high 32 bits of the
     ///    return value is 0x0000_0001 and the low 32 bits contain the u32 index of the element. If it
     ///    does not exist, the high 32 bits of the return value is 0x0000_0000 and the low-32 bits
     ///    contain the u32 index at which the element would need to be inserted into the vector to
     ///    maintain sorted order.
-    pub const vec_binary_search = @extern(*const fn (val.VecObject, val.Val) callconv(.c) u64, .{ .name = "f", .library_name = "v" });
+    pub const vec_binary_search = @extern(*const fn (val.Vec, val.Val) callconv(.c) u64, .{ .name = "f", .library_name = "v" });
 
     ///    Return a new vec initialized from an input slice of Vals given by a linear-memory address
     ///    and length in Vals.
-    pub const vec_new_from_linear_memory = @extern(*const fn (val.U32Val, val.U32Val) callconv(.c) val.VecObject, .{ .name = "g", .library_name = "v" });
+    pub const vec_new_from_linear_memory = @extern(*const fn (val.U32Val, val.U32Val) callconv(.c) val.Vec, .{ .name = "g", .library_name = "v" });
 
     ///    Copy the Vals of a vec into an array at a given linear-memory address and length in Vals.
-    pub const vec_unpack_to_linear_memory = @extern(*const fn (val.VecObject, val.U32Val, val.U32Val) callconv(.c) val.Void, .{ .name = "h", .library_name = "v" });
+    pub const vec_unpack_to_linear_memory = @extern(*const fn (val.Vec, val.U32Val, val.U32Val) callconv(.c) val.Void, .{ .name = "h", .library_name = "v" });
 
 };
 
@@ -350,22 +350,22 @@ pub const ledger = struct {
     ///    arguments. `wasm_hash` must be a hash of the contract code that has already been uploaded
     ///    on this network. `salt` is used to create a unique contract id. Returns the address of the
     ///    created contract.
-    pub const create_contract = @extern(*const fn (val.AddressObject, val.BytesObject, val.BytesObject) callconv(.c) val.AddressObject, .{ .name = "3", .library_name = "l" });
+    pub const create_contract = @extern(*const fn (val.Address, val.Bytes, val.Bytes) callconv(.c) val.Address, .{ .name = "3", .library_name = "l" });
 
     ///    Creates the instance of Stellar Asset contract corresponding to the provided asset.
     ///    `serialized_asset` is `stellar::Asset` XDR serialized to bytes format. Returns the address
     ///    of the created contract.
-    pub const create_asset_contract = @extern(*const fn (val.BytesObject) callconv(.c) val.AddressObject, .{ .name = "4", .library_name = "l" });
+    pub const create_asset_contract = @extern(*const fn (val.Bytes) callconv(.c) val.Address, .{ .name = "4", .library_name = "l" });
 
     ///    Uploads provided `wasm` bytecode to the network and returns its identifier (SHA-256 hash).
     ///    No-op in case if the same Wasm object already exists.
-    pub const upload_wasm = @extern(*const fn (val.BytesObject) callconv(.c) val.BytesObject, .{ .name = "5", .library_name = "l" });
+    pub const upload_wasm = @extern(*const fn (val.Bytes) callconv(.c) val.Bytes, .{ .name = "5", .library_name = "l" });
 
     ///    Replaces the executable of the current contract with the provided Wasm code identified by a
     ///    hash. Wasm entry corresponding to the hash has to already be present in the ledger. The
     ///    update happens only after the current contract invocation has successfully finished, so
     ///    this can be safely called in the middle of a function.
-    pub const update_current_contract_wasm = @extern(*const fn (val.BytesObject) callconv(.c) val.Void, .{ .name = "6", .library_name = "l" });
+    pub const update_current_contract_wasm = @extern(*const fn (val.Bytes) callconv(.c) val.Void, .{ .name = "6", .library_name = "l" });
 
     ///    If the entry's TTL is below `threshold` ledgers, extend `live_until_ledger_seq` such that
     ///    TTL == `extend_to`, where TTL is defined as live_until_ledger_seq - current ledger. If
@@ -387,17 +387,17 @@ pub const ledger = struct {
     ///    as live_until_ledger_seq - current ledger. If attempting to extend past the maximum allowed
     ///    value (defined as the current ledger + `max_entry_ttl` - 1), the new
     ///    `live_until_ledger_seq` will be clamped to the max.
-    pub const extend_contract_instance_and_code_ttl = @extern(*const fn (val.AddressObject, val.U32Val, val.U32Val) callconv(.c) val.Void, .{ .name = "9", .library_name = "l" });
+    pub const extend_contract_instance_and_code_ttl = @extern(*const fn (val.Address, val.U32Val, val.U32Val) callconv(.c) val.Void, .{ .name = "9", .library_name = "l" });
 
     ///    Get the id of a contract without creating it. `deployer` is address of the contract
     ///    deployer. `salt` is used to create a unique contract id. Returns the address of the
     ///    would-be contract.
-    pub const get_contract_id = @extern(*const fn (val.AddressObject, val.BytesObject) callconv(.c) val.AddressObject, .{ .name = "a", .library_name = "l" });
+    pub const get_contract_id = @extern(*const fn (val.Address, val.Bytes) callconv(.c) val.Address, .{ .name = "a", .library_name = "l" });
 
     ///    Get the id of the Stellar Asset contract corresponding to the provided asset without
     ///    creating the instance. `serialized_asset` is `stellar::Asset` XDR serialized to bytes
     ///    format. Returns the address of the would-be asset contract.
-    pub const get_asset_contract_id = @extern(*const fn (val.BytesObject) callconv(.c) val.AddressObject, .{ .name = "b", .library_name = "l" });
+    pub const get_asset_contract_id = @extern(*const fn (val.Bytes) callconv(.c) val.Address, .{ .name = "b", .library_name = "l" });
 
     ///    If the TTL for the provided contract instance is below `threshold` ledgers, extend
     ///    `live_until_ledger_seq` such that TTL == `extend_to`, where TTL is defined as
@@ -405,7 +405,7 @@ pub const ledger = struct {
     ///    value (defined as the current ledger + `max_entry_ttl` - 1), the new
     ///    `live_until_ledger_seq` will be clamped to the max.
     /// Min protocol: 21
-    pub const extend_contract_instance_ttl = @extern(*const fn (val.AddressObject, val.U32Val, val.U32Val) callconv(.c) val.Void, .{ .name = "c", .library_name = "l" });
+    pub const extend_contract_instance_ttl = @extern(*const fn (val.Address, val.U32Val, val.U32Val) callconv(.c) val.Void, .{ .name = "c", .library_name = "l" });
 
     ///    If the TTL for the provided contract's code (if applicable) is below `threshold` ledgers,
     ///    extend `live_until_ledger_seq` such that TTL == `extend_to`, where TTL is defined as
@@ -413,7 +413,7 @@ pub const ledger = struct {
     ///    value (defined as the current ledger + `max_entry_ttl` - 1), the new
     ///    `live_until_ledger_seq` will be clamped to the max.
     /// Min protocol: 21
-    pub const extend_contract_code_ttl = @extern(*const fn (val.AddressObject, val.U32Val, val.U32Val) callconv(.c) val.Void, .{ .name = "d", .library_name = "l" });
+    pub const extend_contract_code_ttl = @extern(*const fn (val.Address, val.U32Val, val.U32Val) callconv(.c) val.Void, .{ .name = "d", .library_name = "l" });
 
     ///    Creates the contract instance on behalf of `deployer`. Created contract must be created
     ///    from a Wasm that has a constructor. `deployer` must authorize this call via Soroban auth
@@ -423,7 +423,7 @@ pub const ledger = struct {
     ///    contract's constructor (`__constructor`) function. Returns the address of the created
     ///    contract.
     /// Min protocol: 22
-    pub const create_contract_with_constructor = @extern(*const fn (val.AddressObject, val.BytesObject, val.BytesObject, val.VecObject) callconv(.c) val.AddressObject, .{ .name = "e", .library_name = "l" });
+    pub const create_contract_with_constructor = @extern(*const fn (val.Address, val.Bytes, val.Bytes, val.Vec) callconv(.c) val.Address, .{ .name = "e", .library_name = "l" });
 
     ///    Extend the contract data entry's TTL to be up to `extend_to` ledgers, where TTL is defined
     ///    as `entry_live_until_ledger_seq - current_ledger_seq`. The TTL extension only actually
@@ -444,7 +444,7 @@ pub const ledger = struct {
     ///    current ledger + `max_entry_ttl` - 1), its new `live_until_ledger_seq` will be clamped to
     ///    the max.
     /// Min protocol: 26
-    pub const extend_contract_instance_and_code_ttl_v2 = @extern(*const fn (val.AddressObject, val.ContractTTLExtension, val.U32Val, val.U32Val, val.U32Val) callconv(.c) val.Void, .{ .name = "g", .library_name = "l" });
+    pub const extend_contract_instance_and_code_ttl_v2 = @extern(*const fn (val.Address, val.ContractTTLExtension, val.U32Val, val.U32Val, val.U32Val) callconv(.c) val.Void, .{ .name = "g", .library_name = "l" });
 
 };
 
@@ -455,7 +455,7 @@ pub const ledger = struct {
 pub const call = struct {
     ///    Calls a function in another contract with arguments contained in vector `args`. If the call
     ///    is successful, returns the result of the called function. Traps otherwise.
-    pub const @"call" = @extern(*const fn (val.AddressObject, val.Symbol, val.VecObject) callconv(.c) val.Val, .{ .name = "_", .library_name = "d" });
+    pub const @"call" = @extern(*const fn (val.Address, val.Symbol, val.Vec) callconv(.c) val.Val, .{ .name = "_", .library_name = "d" });
 
     ///    Calls a function in another contract with arguments contained in vector `args`, returning
     ///    either the result of the called function or an `Error` if the called function failed. The
@@ -464,7 +464,7 @@ pub const call = struct {
     ///    error in the called contract (such as a host function failure that caused a trap).
     ///    `try_call` might trap in a few scenarios where the error can't be meaningfully recovered
     ///    from, such as running out of budget.
-    pub const try_call = @extern(*const fn (val.AddressObject, val.Symbol, val.VecObject) callconv(.c) val.Val, .{ .name = "0", .library_name = "d" });
+    pub const try_call = @extern(*const fn (val.Address, val.Symbol, val.Vec) callconv(.c) val.Val, .{ .name = "0", .library_name = "d" });
 
 };
 
@@ -474,67 +474,67 @@ pub const call = struct {
 
 pub const buf = struct {
     ///    Serializes an (SC)Val into XDR opaque `Bytes` object.
-    pub const serialize_to_bytes = @extern(*const fn (val.Val) callconv(.c) val.BytesObject, .{ .name = "_", .library_name = "b" });
+    pub const serialize_to_bytes = @extern(*const fn (val.Val) callconv(.c) val.Bytes, .{ .name = "_", .library_name = "b" });
 
     ///    Deserialize a `Bytes` object to get back the (SC)Val.
-    pub const deserialize_from_bytes = @extern(*const fn (val.BytesObject) callconv(.c) val.Val, .{ .name = "0", .library_name = "b" });
+    pub const deserialize_from_bytes = @extern(*const fn (val.Bytes) callconv(.c) val.Val, .{ .name = "0", .library_name = "b" });
 
     ///    Copies a slice of bytes from a `Bytes` object specified at offset `b_pos` with length `len`
     ///    into the linear memory at position `lm_pos`. Traps if either the `Bytes` object or the
     ///    linear memory doesn't have enough bytes.
-    pub const bytes_copy_to_linear_memory = @extern(*const fn (val.BytesObject, val.U32Val, val.U32Val, val.U32Val) callconv(.c) val.Void, .{ .name = "1", .library_name = "b" });
+    pub const bytes_copy_to_linear_memory = @extern(*const fn (val.Bytes, val.U32Val, val.U32Val, val.U32Val) callconv(.c) val.Void, .{ .name = "1", .library_name = "b" });
 
     ///    Copies a segment of the linear memory specified at position `lm_pos` with length `len`,
     ///    into a `Bytes` object at offset `b_pos`. The `Bytes` object may grow in size to accommodate
     ///    the new bytes. Traps if the linear memory doesn't have enough bytes.
-    pub const bytes_copy_from_linear_memory = @extern(*const fn (val.BytesObject, val.U32Val, val.U32Val, val.U32Val) callconv(.c) val.BytesObject, .{ .name = "2", .library_name = "b" });
+    pub const bytes_copy_from_linear_memory = @extern(*const fn (val.Bytes, val.U32Val, val.U32Val, val.U32Val) callconv(.c) val.Bytes, .{ .name = "2", .library_name = "b" });
 
     ///    Constructs a new `Bytes` object initialized with bytes copied from a linear memory slice
     ///    specified at position `lm_pos` with length `len`.
-    pub const bytes_new_from_linear_memory = @extern(*const fn (val.U32Val, val.U32Val) callconv(.c) val.BytesObject, .{ .name = "3", .library_name = "b" });
+    pub const bytes_new_from_linear_memory = @extern(*const fn (val.U32Val, val.U32Val) callconv(.c) val.Bytes, .{ .name = "3", .library_name = "b" });
 
     ///    Create an empty new `Bytes` object.
-    pub const bytes_new = @extern(*const fn () callconv(.c) val.BytesObject, .{ .name = "4", .library_name = "b" });
+    pub const bytes_new = @extern(*const fn () callconv(.c) val.Bytes, .{ .name = "4", .library_name = "b" });
 
     ///    Update the value at index `i` in the `Bytes` object. Return the new `Bytes`. Trap if the
     ///    index is out of bounds.
-    pub const bytes_put = @extern(*const fn (val.BytesObject, val.U32Val, val.U32Val) callconv(.c) val.BytesObject, .{ .name = "5", .library_name = "b" });
+    pub const bytes_put = @extern(*const fn (val.Bytes, val.U32Val, val.U32Val) callconv(.c) val.Bytes, .{ .name = "5", .library_name = "b" });
 
     ///    Returns the element at index `i` of the `Bytes` object. Traps if the index is out of bound.
-    pub const bytes_get = @extern(*const fn (val.BytesObject, val.U32Val) callconv(.c) val.U32Val, .{ .name = "6", .library_name = "b" });
+    pub const bytes_get = @extern(*const fn (val.Bytes, val.U32Val) callconv(.c) val.U32Val, .{ .name = "6", .library_name = "b" });
 
     ///    Delete an element in a `Bytes` object at index `i`, shifting all elements after it to the
     ///    left. Return the new `Bytes`. Traps if the index is out of bound.
-    pub const bytes_del = @extern(*const fn (val.BytesObject, val.U32Val) callconv(.c) val.BytesObject, .{ .name = "7", .library_name = "b" });
+    pub const bytes_del = @extern(*const fn (val.Bytes, val.U32Val) callconv(.c) val.Bytes, .{ .name = "7", .library_name = "b" });
 
     ///    Returns length of the `Bytes` object.
-    pub const bytes_len = @extern(*const fn (val.BytesObject) callconv(.c) val.U32Val, .{ .name = "8", .library_name = "b" });
+    pub const bytes_len = @extern(*const fn (val.Bytes) callconv(.c) val.U32Val, .{ .name = "8", .library_name = "b" });
 
     ///    Appends an element to the back of the `Bytes` object.
-    pub const bytes_push = @extern(*const fn (val.BytesObject, val.U32Val) callconv(.c) val.BytesObject, .{ .name = "9", .library_name = "b" });
+    pub const bytes_push = @extern(*const fn (val.Bytes, val.U32Val) callconv(.c) val.Bytes, .{ .name = "9", .library_name = "b" });
 
     ///    Removes the last element from the `Bytes` object and returns the new `Bytes`. Traps if
     ///    original `Bytes` is empty.
-    pub const bytes_pop = @extern(*const fn (val.BytesObject) callconv(.c) val.BytesObject, .{ .name = "a", .library_name = "b" });
+    pub const bytes_pop = @extern(*const fn (val.Bytes) callconv(.c) val.Bytes, .{ .name = "a", .library_name = "b" });
 
     ///    Return the first element in the `Bytes` object. Traps if the `Bytes` is empty
-    pub const bytes_front = @extern(*const fn (val.BytesObject) callconv(.c) val.U32Val, .{ .name = "b", .library_name = "b" });
+    pub const bytes_front = @extern(*const fn (val.Bytes) callconv(.c) val.U32Val, .{ .name = "b", .library_name = "b" });
 
     ///    Return the last element in the `Bytes` object. Traps if the `Bytes` is empty
-    pub const bytes_back = @extern(*const fn (val.BytesObject) callconv(.c) val.U32Val, .{ .name = "c", .library_name = "b" });
+    pub const bytes_back = @extern(*const fn (val.Bytes) callconv(.c) val.U32Val, .{ .name = "c", .library_name = "b" });
 
     ///    Inserts an element at index `i` within the `Bytes` object, shifting all elements after it
     ///    to the right. Traps if the index is out of bound
-    pub const bytes_insert = @extern(*const fn (val.BytesObject, val.U32Val, val.U32Val) callconv(.c) val.BytesObject, .{ .name = "d", .library_name = "b" });
+    pub const bytes_insert = @extern(*const fn (val.Bytes, val.U32Val, val.U32Val) callconv(.c) val.Bytes, .{ .name = "d", .library_name = "b" });
 
     ///    Clone the `Bytes` object `b1`, then moves all the elements of `Bytes` object `b2` into it.
     ///    Return the new `Bytes`. Traps if its length overflows a u32.
-    pub const bytes_append = @extern(*const fn (val.BytesObject, val.BytesObject) callconv(.c) val.BytesObject, .{ .name = "e", .library_name = "b" });
+    pub const bytes_append = @extern(*const fn (val.Bytes, val.Bytes) callconv(.c) val.Bytes, .{ .name = "e", .library_name = "b" });
 
     ///    Copies the elements from `start` index until `end` index, exclusive, in the `Bytes` object
     ///    and creates a new `Bytes` from it. Returns the new `Bytes`. Traps if the index is out of
     ///    bound.
-    pub const bytes_slice = @extern(*const fn (val.BytesObject, val.U32Val, val.U32Val) callconv(.c) val.BytesObject, .{ .name = "f", .library_name = "b" });
+    pub const bytes_slice = @extern(*const fn (val.Bytes, val.U32Val, val.U32Val) callconv(.c) val.Bytes, .{ .name = "f", .library_name = "b" });
 
     ///    Copies a slice of bytes from a `String` object specified at offset `s_pos` with length
     ///    `len` into the linear memory at position `lm_pos`. Traps if either the `String` object or
@@ -566,13 +566,13 @@ pub const buf = struct {
 
     ///    Converts the provided string to bytes with exactly the same contents.
     /// Min protocol: 23
-    pub const string_to_bytes = @extern(*const fn (val.StringObject) callconv(.c) val.BytesObject, .{ .name = "n", .library_name = "b" });
+    pub const string_to_bytes = @extern(*const fn (val.StringObject) callconv(.c) val.Bytes, .{ .name = "n", .library_name = "b" });
 
     ///    Converts the provided bytes array to string with exactly the same contents. No encoding
     ///    checks are performed and thus the output string's encoding should be interpreted by the
     ///    consumer of the string.
     /// Min protocol: 23
-    pub const bytes_to_string = @extern(*const fn (val.BytesObject) callconv(.c) val.StringObject, .{ .name = "o", .library_name = "b" });
+    pub const bytes_to_string = @extern(*const fn (val.Bytes) callconv(.c) val.StringObject, .{ .name = "o", .library_name = "b" });
 
 };
 
@@ -581,12 +581,12 @@ pub const buf = struct {
 // =============================================================================
 
 pub const crypto = struct {
-    pub const compute_hash_sha256 = @extern(*const fn (val.BytesObject) callconv(.c) val.BytesObject, .{ .name = "_", .library_name = "c" });
+    pub const compute_hash_sha256 = @extern(*const fn (val.Bytes) callconv(.c) val.Bytes, .{ .name = "_", .library_name = "c" });
 
-    pub const verify_sig_ed25519 = @extern(*const fn (val.BytesObject, val.BytesObject, val.BytesObject) callconv(.c) val.Void, .{ .name = "0", .library_name = "c" });
+    pub const verify_sig_ed25519 = @extern(*const fn (val.Bytes, val.Bytes, val.Bytes) callconv(.c) val.Void, .{ .name = "0", .library_name = "c" });
 
     ///    Returns the keccak256 hash of given input bytes.
-    pub const compute_hash_keccak256 = @extern(*const fn (val.BytesObject) callconv(.c) val.BytesObject, .{ .name = "1", .library_name = "c" });
+    pub const compute_hash_keccak256 = @extern(*const fn (val.Bytes) callconv(.c) val.Bytes, .{ .name = "1", .library_name = "c" });
 
     ///    Recovers the SEC-1-encoded ECDSA secp256k1 public key that produced a given 64-byte
     ///    `signature` over a given 32-byte `msg_digest` for a given `recovery_id` byte. Warning: The
@@ -598,7 +598,7 @@ pub const crypto = struct {
     ///    value `0`, `1`, `2`, or `3`, the low bit (0/1) indicates the parity of the y-coordinate of
     ///    the `public_key` (even/odd) and the high bit (3/4) indicate if the `r` (x-coordinate of `k
     ///    x G`) has overflown during its computation.
-    pub const recover_key_ecdsa_secp256k1 = @extern(*const fn (val.BytesObject, val.BytesObject, val.U32Val) callconv(.c) val.BytesObject, .{ .name = "2", .library_name = "c" });
+    pub const recover_key_ecdsa_secp256k1 = @extern(*const fn (val.Bytes, val.Bytes, val.U32Val) callconv(.c) val.Bytes, .{ .name = "2", .library_name = "c" });
 
     ///    Verifies the `signature` using an ECDSA secp256r1 `public_key` on a 32-byte `msg_digest`.
     ///    Warning: The `msg_digest` must be produced by a secure cryptographic hash function on the
@@ -607,35 +607,35 @@ pub const crypto = struct {
     ///    format. The `signature` is the ECDSA signature `(r, s)` serialized as fixed-size big endian
     ///    scalar values, both `r`, `s` must be non-zero and `s` must be in the lower range.
     /// Min protocol: 21
-    pub const verify_sig_ecdsa_secp256r1 = @extern(*const fn (val.BytesObject, val.BytesObject, val.BytesObject) callconv(.c) val.Void, .{ .name = "3", .library_name = "c" });
+    pub const verify_sig_ecdsa_secp256r1 = @extern(*const fn (val.Bytes, val.Bytes, val.Bytes) callconv(.c) val.Void, .{ .name = "3", .library_name = "c" });
 
     ///    Checks if the input G1 point is in the correct subgroup. This function will error if
     ///    `point` is not on the curve
     /// Min protocol: 22
-    pub const bls12_381_check_g1_is_in_subgroup = @extern(*const fn (val.BytesObject) callconv(.c) val.Bool, .{ .name = "4", .library_name = "c" });
+    pub const bls12_381_check_g1_is_in_subgroup = @extern(*const fn (val.Bytes) callconv(.c) val.Bool, .{ .name = "4", .library_name = "c" });
 
     ///    Adds two BLS12-381 G1 points given in bytes format and returns the resulting G1 point in
     ///    bytes format. G1 serialization format: `concat(be_bytes(X), be_bytes(Y))` and the most
     ///    significant three bits of X encodes flags, i.e. bits(X) = [compression_flag, infinity_flag,
     ///    sort_flag, bit_3, .. bit_383]. This function does NOT perform subgroup check on the inputs.
     /// Min protocol: 22
-    pub const bls12_381_g1_add = @extern(*const fn (val.BytesObject, val.BytesObject) callconv(.c) val.BytesObject, .{ .name = "5", .library_name = "c" });
+    pub const bls12_381_g1_add = @extern(*const fn (val.Bytes, val.Bytes) callconv(.c) val.Bytes, .{ .name = "5", .library_name = "c" });
 
     ///    Multiplies a BLS12-381 G1 point by a scalar (Fr), and returns the resulting G1 point in
     ///    bytes format.
     /// Min protocol: 22
-    pub const bls12_381_g1_mul = @extern(*const fn (val.BytesObject, val.U256Val) callconv(.c) val.BytesObject, .{ .name = "6", .library_name = "c" });
+    pub const bls12_381_g1_mul = @extern(*const fn (val.Bytes, val.U256Val) callconv(.c) val.Bytes, .{ .name = "6", .library_name = "c" });
 
     ///    Performs multi-scalar-multiplication (inner product) on a vector of BLS12-381 G1 points
     ///    (`Vec<BytesObject>`) by a vector of scalars (`Vec<U256Val>`), and returns the resulting G1
     ///    point in bytes format.
     /// Min protocol: 22
-    pub const bls12_381_g1_msm = @extern(*const fn (val.VecObject, val.VecObject) callconv(.c) val.BytesObject, .{ .name = "7", .library_name = "c" });
+    pub const bls12_381_g1_msm = @extern(*const fn (val.Vec, val.Vec) callconv(.c) val.Bytes, .{ .name = "7", .library_name = "c" });
 
     ///    Maps a BLS12-381 field element (Fp) to G1 point. The input is a BytesObject containing Fp
     ///    serialized in big-endian order
     /// Min protocol: 22
-    pub const bls12_381_map_fp_to_g1 = @extern(*const fn (val.BytesObject) callconv(.c) val.BytesObject, .{ .name = "8", .library_name = "c" });
+    pub const bls12_381_map_fp_to_g1 = @extern(*const fn (val.Bytes) callconv(.c) val.Bytes, .{ .name = "8", .library_name = "c" });
 
     ///    Hashes a message to a BLS12-381 G1 point, with implementation following the specification
     ///    in [Hashing to Elliptic Curves](https://datatracker.ietf.org/doc/html/rfc9380) (ciphersuite
@@ -645,12 +645,12 @@ pub const crypto = struct {
     ///    chosen with care to avoid compromising the application's security properties. Refer to
     ///    section 3.1 in the RFC on requirements of DST.
     /// Min protocol: 22
-    pub const bls12_381_hash_to_g1 = @extern(*const fn (val.BytesObject, val.BytesObject) callconv(.c) val.BytesObject, .{ .name = "9", .library_name = "c" });
+    pub const bls12_381_hash_to_g1 = @extern(*const fn (val.Bytes, val.Bytes) callconv(.c) val.Bytes, .{ .name = "9", .library_name = "c" });
 
     ///    Checks if the input G2 point is in the correct subgroup. This function will error if
     ///    `point` is not on the curve
     /// Min protocol: 22
-    pub const bls12_381_check_g2_is_in_subgroup = @extern(*const fn (val.BytesObject) callconv(.c) val.Bool, .{ .name = "a", .library_name = "c" });
+    pub const bls12_381_check_g2_is_in_subgroup = @extern(*const fn (val.Bytes) callconv(.c) val.Bool, .{ .name = "a", .library_name = "c" });
 
     ///    Adds two BLS12-381 G2 points given in bytes format and returns the resulting G2 point in
     ///    bytes format. G2 serialization format: concat(be_bytes(X_c1), be_bytes(X_c0),
@@ -658,23 +658,23 @@ pub const crypto = struct {
     ///    bits(X_c1) = [compression_flag, infinity_flag, sort_flag, bit_3, .. bit_383]. This function
     ///    does NOT perform subgroup check on the inputs.
     /// Min protocol: 22
-    pub const bls12_381_g2_add = @extern(*const fn (val.BytesObject, val.BytesObject) callconv(.c) val.BytesObject, .{ .name = "b", .library_name = "c" });
+    pub const bls12_381_g2_add = @extern(*const fn (val.Bytes, val.Bytes) callconv(.c) val.Bytes, .{ .name = "b", .library_name = "c" });
 
     ///    Multiplies a BLS12-381 G2 point by a scalar (Fr), and returns the resulting G2 point in
     ///    bytes format.
     /// Min protocol: 22
-    pub const bls12_381_g2_mul = @extern(*const fn (val.BytesObject, val.U256Val) callconv(.c) val.BytesObject, .{ .name = "c", .library_name = "c" });
+    pub const bls12_381_g2_mul = @extern(*const fn (val.Bytes, val.U256Val) callconv(.c) val.Bytes, .{ .name = "c", .library_name = "c" });
 
     ///    Performs multi-scalar-multiplication (inner product) on a vector of BLS12-381 G2 points
     ///    (`Vec<BytesObject>`) by a vector of scalars (`Vec<U256Val>`) , and returns the resulting G2
     ///    point in bytes format.
     /// Min protocol: 22
-    pub const bls12_381_g2_msm = @extern(*const fn (val.VecObject, val.VecObject) callconv(.c) val.BytesObject, .{ .name = "d", .library_name = "c" });
+    pub const bls12_381_g2_msm = @extern(*const fn (val.Vec, val.Vec) callconv(.c) val.Bytes, .{ .name = "d", .library_name = "c" });
 
     ///    Maps a BLS12-381 quadratic extension field element (Fp2) to G2 point. Fp2 serialization
     ///    format: concat(be_bytes(c1), be_bytes(c0))
     /// Min protocol: 22
-    pub const bls12_381_map_fp2_to_g2 = @extern(*const fn (val.BytesObject) callconv(.c) val.BytesObject, .{ .name = "e", .library_name = "c" });
+    pub const bls12_381_map_fp2_to_g2 = @extern(*const fn (val.Bytes) callconv(.c) val.Bytes, .{ .name = "e", .library_name = "c" });
 
     ///    Hashes a message to a BLS12-381 G2 point, with implementation following the specification
     ///    in [Hashing to Elliptic Curves](https://datatracker.ietf.org/doc/html/rfc9380) (ciphersuite
@@ -684,12 +684,12 @@ pub const crypto = struct {
     ///    chosen with care to avoid compromising the application's security properties. Refer to
     ///    section 3.1 in the RFC on requirements of DST.
     /// Min protocol: 22
-    pub const bls12_381_hash_to_g2 = @extern(*const fn (val.BytesObject, val.BytesObject) callconv(.c) val.BytesObject, .{ .name = "f", .library_name = "c" });
+    pub const bls12_381_hash_to_g2 = @extern(*const fn (val.Bytes, val.Bytes) callconv(.c) val.Bytes, .{ .name = "f", .library_name = "c" });
 
     ///    performs pairing operation on a vector of `G1` (`Vec<BytesObject>`) and a vector of `G2`
     ///    points (`Vec<BytesObject>`) , return true if the result equals `1_fp12`
     /// Min protocol: 22
-    pub const bls12_381_multi_pairing_check = @extern(*const fn (val.VecObject, val.VecObject) callconv(.c) val.Bool, .{ .name = "g", .library_name = "c" });
+    pub const bls12_381_multi_pairing_check = @extern(*const fn (val.Vec, val.Vec) callconv(.c) val.Bool, .{ .name = "g", .library_name = "c" });
 
     ///    performs addition `(lhs + rhs) mod r` between two BLS12-381 scalar elements (Fr), where r
     ///    is the subgroup order
@@ -720,13 +720,13 @@ pub const crypto = struct {
     ///    flag bits (0x80 and 0x40) of the first byte must be unset -- infinity is represented as 64
     ///    zero bytes. Points must be on curve with no subgroup check needed (always in subgroup)
     /// Min protocol: 25
-    pub const bn254_g1_add = @extern(*const fn (val.BytesObject, val.BytesObject) callconv(.c) val.BytesObject, .{ .name = "m", .library_name = "c" });
+    pub const bn254_g1_add = @extern(*const fn (val.Bytes, val.Bytes) callconv(.c) val.Bytes, .{ .name = "m", .library_name = "c" });
 
     ///    Multiplies a BN254 G1 point by a scalar from the scalar field Fr. The point uses the same
     ///    64-byte encoding as bn254_g1_add. The scalar is a U256Val representing a 256-bit integer
     ///    that is reduced modulo the Fr field order.
     /// Min protocol: 25
-    pub const bn254_g1_mul = @extern(*const fn (val.BytesObject, val.U256Val) callconv(.c) val.BytesObject, .{ .name = "n", .library_name = "c" });
+    pub const bn254_g1_mul = @extern(*const fn (val.Bytes, val.U256Val) callconv(.c) val.Bytes, .{ .name = "n", .library_name = "c" });
 
     ///    Performs BN254 multi-pairing check over equal-length non-empty vectors of G1 and G2 points.
     ///    Returns true iff the product of pairings e(G1[0],G2[0])*...*e(G1[n-1],G2[n-1]) equals 1 in
@@ -737,7 +737,7 @@ pub const crypto = struct {
     ///    unset -- G2 infinity is 128 zero bytes. G2 points must be on curve AND in the correct
     ///    subgroup.
     /// Min protocol: 25
-    pub const bn254_multi_pairing_check = @extern(*const fn (val.VecObject, val.VecObject) callconv(.c) val.Bool, .{ .name = "o", .library_name = "c" });
+    pub const bn254_multi_pairing_check = @extern(*const fn (val.Vec, val.Vec) callconv(.c) val.Bool, .{ .name = "o", .library_name = "c" });
 
     ///    Performs Poseidon permutation on input vector. input: vector of field elements (length t).
     ///    field: 'BLS12_381' or 'BN254'. t: state size. d: S-box degree (5 for BLS12_381/BN254).
@@ -745,7 +745,7 @@ pub const crypto = struct {
     ///    t-by-t MDS matrix as Vec<Vec<Scalar>>. round_constants: (rounds_f+rounds_p)-by-t round
     ///    constants matrix as Vec<Vec<Scalar>>. Returns output vector after permutation.
     /// Min protocol: 25
-    pub const poseidon_permutation = @extern(*const fn (val.VecObject, val.Symbol, val.U32Val, val.U32Val, val.U32Val, val.U32Val, val.VecObject, val.VecObject) callconv(.c) val.VecObject, .{ .name = "p", .library_name = "c" });
+    pub const poseidon_permutation = @extern(*const fn (val.Vec, val.Symbol, val.U32Val, val.U32Val, val.U32Val, val.U32Val, val.Vec, val.Vec) callconv(.c) val.Vec, .{ .name = "p", .library_name = "c" });
 
     ///    Performs Poseidon2 permutation on input vector. input: vector of field elements (length t).
     ///    field: 'BLS12_381' or 'BN254'. t: state size. d: S-box degree (5 for BLS12_381/BN254).
@@ -754,13 +754,13 @@ pub const crypto = struct {
     ///    round_constants: (rounds_f+rounds_p)-by-t round constants matrix as Vec<Vec<Scalar>>.
     ///    Returns output vector after permutation.
     /// Min protocol: 25
-    pub const poseidon2_permutation = @extern(*const fn (val.VecObject, val.Symbol, val.U32Val, val.U32Val, val.U32Val, val.U32Val, val.VecObject, val.VecObject) callconv(.c) val.VecObject, .{ .name = "q", .library_name = "c" });
+    pub const poseidon2_permutation = @extern(*const fn (val.Vec, val.Symbol, val.U32Val, val.U32Val, val.U32Val, val.U32Val, val.Vec, val.Vec) callconv(.c) val.Vec, .{ .name = "q", .library_name = "c" });
 
     ///    Performs multi-scalar-multiplication (inner product) on a vector of BN254 G1 points
     ///    (`Vec<BytesObject>`) by a vector of scalars (`Vec<U256Val>`), and returns the resulting G1
     ///    point in 64-byte uncompressed format.
     /// Min protocol: 26
-    pub const bn254_g1_msm = @extern(*const fn (val.VecObject, val.VecObject) callconv(.c) val.BytesObject, .{ .name = "r", .library_name = "c" });
+    pub const bn254_g1_msm = @extern(*const fn (val.Vec, val.Vec) callconv(.c) val.Bytes, .{ .name = "r", .library_name = "c" });
 
     ///    Performs addition `(lhs + rhs) mod r` between two BN254 scalar elements (Fr), where r is
     ///    the subgroup order
@@ -789,17 +789,17 @@ pub const crypto = struct {
     ///    Checks if a BLS12-381 G1 point is on the curve (does not check subgroup membership).
     ///    Returns true if the point is on the curve, false otherwise.
     /// Min protocol: 26
-    pub const bls12_381_g1_is_on_curve = @extern(*const fn (val.BytesObject) callconv(.c) val.Bool, .{ .name = "x", .library_name = "c" });
+    pub const bls12_381_g1_is_on_curve = @extern(*const fn (val.Bytes) callconv(.c) val.Bool, .{ .name = "x", .library_name = "c" });
 
     ///    Checks if a BLS12-381 G2 point is on the curve (does not check subgroup membership).
     ///    Returns true if the point is on the curve, false otherwise.
     /// Min protocol: 26
-    pub const bls12_381_g2_is_on_curve = @extern(*const fn (val.BytesObject) callconv(.c) val.Bool, .{ .name = "y", .library_name = "c" });
+    pub const bls12_381_g2_is_on_curve = @extern(*const fn (val.Bytes) callconv(.c) val.Bool, .{ .name = "y", .library_name = "c" });
 
     ///    Checks if a BN254 G1 point is on the curve. Returns true if the point is on the curve,
     ///    false otherwise.
     /// Min protocol: 26
-    pub const bn254_g1_is_on_curve = @extern(*const fn (val.BytesObject) callconv(.c) val.Bool, .{ .name = "z", .library_name = "c" });
+    pub const bn254_g1_is_on_curve = @extern(*const fn (val.Bytes) callconv(.c) val.Bool, .{ .name = "z", .library_name = "c" });
 
 };
 
@@ -810,11 +810,11 @@ pub const crypto = struct {
 pub const address = struct {
     ///    Checks if the address has authorized the invocation of the current contract function with
     ///    the provided arguments. Traps if the invocation hasn't been authorized.
-    pub const require_auth_for_args = @extern(*const fn (val.AddressObject, val.VecObject) callconv(.c) val.Void, .{ .name = "_", .library_name = "a" });
+    pub const require_auth_for_args = @extern(*const fn (val.Address, val.Vec) callconv(.c) val.Void, .{ .name = "_", .library_name = "a" });
 
     ///    Checks if the address has authorized the invocation of the current contract function with
     ///    all the arguments of the invocation. Traps if the invocation hasn't been authorized.
-    pub const require_auth = @extern(*const fn (val.AddressObject) callconv(.c) val.Void, .{ .name = "0", .library_name = "a" });
+    pub const require_auth = @extern(*const fn (val.Address) callconv(.c) val.Void, .{ .name = "0", .library_name = "a" });
 
     ///    Converts a provided Stellar strkey address of an account or a contract ('G...' or 'C...'
     ///    respectively) to an address object. `strkey` can be either `BytesObject` or `StringObject`
@@ -822,12 +822,12 @@ pub const address = struct {
     ///    invalid strkey (e.g. 'S...') will trigger an error. Prefer directly using the Address
     ///    objects whenever possible. This is only useful in the context of custom messaging protocols
     ///    (e.g. cross-chain).
-    pub const strkey_to_address = @extern(*const fn (val.Val) callconv(.c) val.AddressObject, .{ .name = "1", .library_name = "a" });
+    pub const strkey_to_address = @extern(*const fn (val.Val) callconv(.c) val.Address, .{ .name = "1", .library_name = "a" });
 
     ///    Converts a provided address to Stellar strkey format ('G...' for account or 'C...' for
     ///    contract). Prefer directly using the Address objects whenever possible. This is only useful
     ///    in the context of custom messaging protocols (e.g. cross-chain).
-    pub const address_to_strkey = @extern(*const fn (val.AddressObject) callconv(.c) val.StringObject, .{ .name = "2", .library_name = "a" });
+    pub const address_to_strkey = @extern(*const fn (val.Address) callconv(.c) val.StringObject, .{ .name = "2", .library_name = "a" });
 
     ///    Authorizes sub-contract calls for the next contract call on behalf of the current contract.
     ///    Every entry in the argument vector corresponds to `InvokerContractAuthEntry` contract type
@@ -835,13 +835,13 @@ pub const address = struct {
     ///    entries must not contain any authorizations for the direct contract call, i.e. if current
     ///    contract needs to call contract function F1 that calls function F2 both of which require
     ///    auth, only F2 should be present in `auth_entries`.
-    pub const authorize_as_curr_contract = @extern(*const fn (val.VecObject) callconv(.c) val.Void, .{ .name = "3", .library_name = "a" });
+    pub const authorize_as_curr_contract = @extern(*const fn (val.Vec) callconv(.c) val.Void, .{ .name = "3", .library_name = "a" });
 
     ///    Returns the address corresponding to the provided MuxedAddressObject as a new
     ///    AddressObject. Note, that MuxedAddressObject consists of the address and multiplexing id,
     ///    so this conversion just strips the multiplexing id from the input muxed address.
     /// Min protocol: 23
-    pub const get_address_from_muxed_address = @extern(*const fn (val.MuxedAddressObject) callconv(.c) val.AddressObject, .{ .name = "4", .library_name = "a" });
+    pub const get_address_from_muxed_address = @extern(*const fn (val.MuxedAddressObject) callconv(.c) val.Address, .{ .name = "4", .library_name = "a" });
 
     ///    Returns the multiplexing id corresponding to the provided MuxedAddressObject as a U64Val.
     /// Min protocol: 23
@@ -853,7 +853,7 @@ pub const address = struct {
     ///    Wasm hash for the Wasm contracts, `StellarAsset` value for Stellar Asset contract
     ///    instances, and `Account` value for the 'classic' (G-) accounts.
     /// Min protocol: 23
-    pub const get_address_executable = @extern(*const fn (val.AddressObject) callconv(.c) val.Val, .{ .name = "6", .library_name = "a" });
+    pub const get_address_executable = @extern(*const fn (val.Address) callconv(.c) val.Val, .{ .name = "6", .library_name = "a" });
 
 };
 
@@ -883,16 +883,16 @@ pub const @"test" = struct {
 
 pub const prng = struct {
     ///    Reseed the frame-local PRNG with a given BytesObject, which should be 32 bytes long.
-    pub const prng_reseed = @extern(*const fn (val.BytesObject) callconv(.c) val.Void, .{ .name = "_", .library_name = "p" });
+    pub const prng_reseed = @extern(*const fn (val.Bytes) callconv(.c) val.Void, .{ .name = "_", .library_name = "p" });
 
     ///    Construct a new BytesObject of the given length filled with bytes drawn from the
     ///    frame-local PRNG.
-    pub const prng_bytes_new = @extern(*const fn (val.U32Val) callconv(.c) val.BytesObject, .{ .name = "0", .library_name = "p" });
+    pub const prng_bytes_new = @extern(*const fn (val.U32Val) callconv(.c) val.Bytes, .{ .name = "0", .library_name = "p" });
 
     ///    Return a u64 uniformly sampled from the inclusive range [lo,hi] by the frame-local PRNG.
     pub const prng_u64_in_inclusive_range = @extern(*const fn (u64, u64) callconv(.c) u64, .{ .name = "1", .library_name = "p" });
 
     ///    Return a (Fisher-Yates) shuffled clone of a given vector, using the frame-local PRNG.
-    pub const prng_vec_shuffle = @extern(*const fn (val.VecObject) callconv(.c) val.VecObject, .{ .name = "2", .library_name = "p" });
+    pub const prng_vec_shuffle = @extern(*const fn (val.Vec) callconv(.c) val.Vec, .{ .name = "2", .library_name = "p" });
 
 };

@@ -11,12 +11,12 @@ const env = @import("env.zig");
 // -----------------------------------------------------------------------
 
 /// Compute the SHA-256 hash of the given bytes.
-pub fn sha256(data: val.BytesObject) val.BytesObject {
+pub fn sha256(data: val.Bytes) val.Bytes {
     return env.crypto.compute_hash_sha256(data);
 }
 
 /// Compute the Keccak-256 hash of the given bytes.
-pub fn keccak256(data: val.BytesObject) val.BytesObject {
+pub fn keccak256(data: val.Bytes) val.Bytes {
     return env.crypto.compute_hash_keccak256(data);
 }
 
@@ -28,7 +28,7 @@ pub fn keccak256(data: val.BytesObject) val.BytesObject {
 /// `public_key` is a 32-byte Ed25519 public key.
 /// `message` is the signed message.
 /// `signature` is a 64-byte Ed25519 signature.
-pub fn verifyEd25519(public_key: val.BytesObject, message: val.BytesObject, signature: val.BytesObject) void {
+pub fn verifyEd25519(public_key: val.Bytes, message: val.Bytes, signature: val.Bytes) void {
     _ = env.crypto.verify_sig_ed25519(public_key, message, signature);
 }
 
@@ -36,7 +36,7 @@ pub fn verifyEd25519(public_key: val.BytesObject, message: val.BytesObject, sign
 /// `public_key` is a 65-byte SEC-1 uncompressed public key.
 /// `msg_digest` is a 32-byte hash digest.
 /// `signature` is the ECDSA signature (r, s) as fixed-size big-endian scalars.
-pub fn verifyEcdsaSecp256r1(public_key: val.BytesObject, msg_digest: val.BytesObject, signature: val.BytesObject) void {
+pub fn verifyEcdsaSecp256r1(public_key: val.Bytes, msg_digest: val.Bytes, signature: val.Bytes) void {
     _ = env.crypto.verify_sig_ecdsa_secp256r1(public_key, msg_digest, signature);
 }
 
@@ -45,7 +45,7 @@ pub fn verifyEcdsaSecp256r1(public_key: val.BytesObject, msg_digest: val.BytesOb
 /// `signature` is a 64-byte ECDSA signature (r, s).
 /// `recovery_id` is 0, 1, 2, or 3.
 /// Returns a 65-byte SEC-1 uncompressed public key.
-pub fn recoverEcdsaSecp256k1(msg_digest: val.BytesObject, signature: val.BytesObject, recovery_id: u32) val.BytesObject {
+pub fn recoverEcdsaSecp256k1(msg_digest: val.Bytes, signature: val.Bytes, recovery_id: u32) val.Bytes {
     return env.crypto.recover_key_ecdsa_secp256k1(msg_digest, signature, val.U32Val.fromU32(recovery_id));
 }
 
@@ -54,55 +54,55 @@ pub fn recoverEcdsaSecp256k1(msg_digest: val.BytesObject, signature: val.BytesOb
 // -----------------------------------------------------------------------
 
 pub const bls12_381 = struct {
-    pub fn checkG1IsInSubgroup(point: val.BytesObject) bool {
+    pub fn checkG1IsInSubgroup(point: val.Bytes) bool {
         return env.crypto.bls12_381_check_g1_is_in_subgroup(point).toBool();
     }
 
-    pub fn g1Add(p1: val.BytesObject, p2: val.BytesObject) val.BytesObject {
+    pub fn g1Add(p1: val.Bytes, p2: val.Bytes) val.Bytes {
         return env.crypto.bls12_381_g1_add(p1, p2);
     }
 
-    pub fn g1Mul(point: val.BytesObject, scalar: val.U256Val) val.BytesObject {
+    pub fn g1Mul(point: val.Bytes, scalar: val.U256Val) val.Bytes {
         return env.crypto.bls12_381_g1_mul(point, scalar);
     }
 
-    pub fn g1Msm(points: val.VecObject, scalars: val.VecObject) val.BytesObject {
+    pub fn g1Msm(points: val.Vec, scalars: val.Vec) val.Bytes {
         return env.crypto.bls12_381_g1_msm(points, scalars);
     }
 
-    pub fn mapFpToG1(fp: val.BytesObject) val.BytesObject {
+    pub fn mapFpToG1(fp: val.Bytes) val.Bytes {
         return env.crypto.bls12_381_map_fp_to_g1(fp);
     }
 
-    pub fn hashToG1(msg: val.BytesObject, dst: val.BytesObject) val.BytesObject {
+    pub fn hashToG1(msg: val.Bytes, dst: val.Bytes) val.Bytes {
         return env.crypto.bls12_381_hash_to_g1(msg, dst);
     }
 
-    pub fn checkG2IsInSubgroup(point: val.BytesObject) bool {
+    pub fn checkG2IsInSubgroup(point: val.Bytes) bool {
         return env.crypto.bls12_381_check_g2_is_in_subgroup(point).toBool();
     }
 
-    pub fn g2Add(p1: val.BytesObject, p2: val.BytesObject) val.BytesObject {
+    pub fn g2Add(p1: val.Bytes, p2: val.Bytes) val.Bytes {
         return env.crypto.bls12_381_g2_add(p1, p2);
     }
 
-    pub fn g2Mul(point: val.BytesObject, scalar: val.U256Val) val.BytesObject {
+    pub fn g2Mul(point: val.Bytes, scalar: val.U256Val) val.Bytes {
         return env.crypto.bls12_381_g2_mul(point, scalar);
     }
 
-    pub fn g2Msm(points: val.VecObject, scalars: val.VecObject) val.BytesObject {
+    pub fn g2Msm(points: val.Vec, scalars: val.Vec) val.Bytes {
         return env.crypto.bls12_381_g2_msm(points, scalars);
     }
 
-    pub fn mapFp2ToG2(fp2: val.BytesObject) val.BytesObject {
+    pub fn mapFp2ToG2(fp2: val.Bytes) val.Bytes {
         return env.crypto.bls12_381_map_fp2_to_g2(fp2);
     }
 
-    pub fn hashToG2(msg: val.BytesObject, dst: val.BytesObject) val.BytesObject {
+    pub fn hashToG2(msg: val.Bytes, dst: val.Bytes) val.Bytes {
         return env.crypto.bls12_381_hash_to_g2(msg, dst);
     }
 
-    pub fn multiPairingCheck(g1_points: val.VecObject, g2_points: val.VecObject) bool {
+    pub fn multiPairingCheck(g1_points: val.Vec, g2_points: val.Vec) bool {
         return env.crypto.bls12_381_multi_pairing_check(g1_points, g2_points).toBool();
     }
 
@@ -126,11 +126,11 @@ pub const bls12_381 = struct {
         return env.crypto.bls12_381_fr_inv(v);
     }
 
-    pub fn g1IsOnCurve(point: val.BytesObject) bool {
+    pub fn g1IsOnCurve(point: val.Bytes) bool {
         return env.crypto.bls12_381_g1_is_on_curve(point).toBool();
     }
 
-    pub fn g2IsOnCurve(point: val.BytesObject) bool {
+    pub fn g2IsOnCurve(point: val.Bytes) bool {
         return env.crypto.bls12_381_g2_is_on_curve(point).toBool();
     }
 };
@@ -140,19 +140,19 @@ pub const bls12_381 = struct {
 // -----------------------------------------------------------------------
 
 pub const bn254 = struct {
-    pub fn g1Add(p1: val.BytesObject, p2: val.BytesObject) val.BytesObject {
+    pub fn g1Add(p1: val.Bytes, p2: val.Bytes) val.Bytes {
         return env.crypto.bn254_g1_add(p1, p2);
     }
 
-    pub fn g1Mul(point: val.BytesObject, scalar: val.U256Val) val.BytesObject {
+    pub fn g1Mul(point: val.Bytes, scalar: val.U256Val) val.Bytes {
         return env.crypto.bn254_g1_mul(point, scalar);
     }
 
-    pub fn g1Msm(points: val.VecObject, scalars: val.VecObject) val.BytesObject {
+    pub fn g1Msm(points: val.Vec, scalars: val.Vec) val.Bytes {
         return env.crypto.bn254_g1_msm(points, scalars);
     }
 
-    pub fn multiPairingCheck(g1_points: val.VecObject, g2_points: val.VecObject) bool {
+    pub fn multiPairingCheck(g1_points: val.Vec, g2_points: val.Vec) bool {
         return env.crypto.bn254_multi_pairing_check(g1_points, g2_points).toBool();
     }
 
@@ -176,7 +176,7 @@ pub const bn254 = struct {
         return env.crypto.bn254_fr_inv(v);
     }
 
-    pub fn g1IsOnCurve(point: val.BytesObject) bool {
+    pub fn g1IsOnCurve(point: val.Bytes) bool {
         return env.crypto.bn254_g1_is_on_curve(point).toBool();
     }
 };
@@ -195,15 +195,15 @@ pub const bn254 = struct {
 /// `mds` is the t-by-t MDS matrix as Vec<Vec<Scalar>>.
 /// `round_constants` is the (rounds_f+rounds_p)-by-t round constants matrix.
 pub fn poseidonPermutation(
-    input: val.VecObject,
+    input: val.Vec,
     field: val.Symbol,
     t: val.U32Val,
     d: val.U32Val,
     rounds_f: val.U32Val,
     rounds_p: val.U32Val,
-    mds: val.VecObject,
-    round_constants: val.VecObject,
-) val.VecObject {
+    mds: val.Vec,
+    round_constants: val.Vec,
+) val.Vec {
     return env.crypto.poseidon_permutation(input, field, t, d, rounds_f, rounds_p, mds, round_constants);
 }
 
@@ -217,14 +217,14 @@ pub fn poseidonPermutation(
 /// `mat_internal_diag_m_1` is the internal matrix diagonal minus 1 as Vec<Scalar> (length t).
 /// `round_constants` is the (rounds_f+rounds_p)-by-t round constants matrix.
 pub fn poseidon2Permutation(
-    input: val.VecObject,
+    input: val.Vec,
     field: val.Symbol,
     t: val.U32Val,
     d: val.U32Val,
     rounds_f: val.U32Val,
     rounds_p: val.U32Val,
-    mat_internal_diag_m_1: val.VecObject,
-    round_constants: val.VecObject,
-) val.VecObject {
+    mat_internal_diag_m_1: val.Vec,
+    round_constants: val.Vec,
+) val.Vec {
     return env.crypto.poseidon2_permutation(input, field, t, d, rounds_f, rounds_p, mat_internal_diag_m_1, round_constants);
 }

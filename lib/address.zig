@@ -1,61 +1,63 @@
 // Soroban Address and Auth utilities.
 //
-// Thin wrappers around the address host functions for authentication
-// and address manipulation.
+// Address is a host-managed address accessed via a 64-bit tagged handle.
 
 const val = @import("val.zig");
 const env = @import("env.zig");
+const Vec = @import("vec.zig").Vec;
 
-pub const Address = struct {
-    obj: val.AddressObject,
+pub const Address = extern struct {
+    payload: u64,
 
-    /// Wrap a raw AddressObject.
-    pub fn fromObject(obj: val.AddressObject) Address {
-        return .{ .obj = obj };
+    pub fn toVal(self: Address) val.Val {
+        return .{ .payload = self.payload };
     }
 
-    /// Get the underlying AddressObject.
-    pub fn toObject(self: Address) val.AddressObject {
-        return self.obj;
+    pub fn fromVal(v: val.Val) Address {
+        return .{ .payload = v.payload };
+    }
+
+    pub fn getHandle(self: Address) u32 {
+        return @truncate(self.payload >> 32);
     }
 
     /// Require that this address has authorized the invocation of the
     /// current contract function with all its arguments.
     pub fn requireAuth(self: Address) void {
-        _ = env.address.require_auth(self.obj);
+        _ = env.address.require_auth(self);
     }
 
     /// Require that this address has authorized the invocation of the
     /// current contract function with the provided arguments.
-    pub fn requireAuthForArgs(self: Address, args: val.VecObject) void {
-        _ = env.address.require_auth_for_args(self.obj, args);
+    pub fn requireAuthForArgs(self: Address, args: Vec) void {
+        _ = env.address.require_auth_for_args(self, args);
     }
 
     /// Convert this address to a Stellar strkey string ('G...' or 'C...').
     pub fn toStrkey(self: Address) val.StringObject {
-        return env.address.address_to_strkey(self.obj);
+        return env.address.address_to_strkey(self);
     }
 
     /// Get the executable information for this address.
     pub fn getExecutable(self: Address) val.Val {
-        return env.address.get_address_executable(self.obj);
+        return env.address.get_address_executable(self);
     }
 };
 
 /// Convert a Stellar strkey ('G...' or 'C...') to an Address.
-/// The strkey can be either a BytesObject or StringObject.
+/// The strkey can be either a Bytes or StringObject.
 pub fn strkeyToAddress(strkey: val.Val) Address {
-    return Address.fromObject(env.address.strkey_to_address(strkey));
+    return env.address.strkey_to_address(strkey);
 }
 
 /// Authorize sub-contract calls on behalf of the current contract.
-pub fn authorizeAsCurrContract(auth_entries: val.VecObject) void {
+pub fn authorizeAsCurrContract(auth_entries: Vec) void {
     _ = env.address.authorize_as_curr_contract(auth_entries);
 }
 
 /// Get the Address from a MuxedAddressObject (strips the multiplexing id).
 pub fn getAddressFromMuxedAddress(muxed: val.MuxedAddressObject) Address {
-    return Address.fromObject(env.address.get_address_from_muxed_address(muxed));
+    return env.address.get_address_from_muxed_address(muxed);
 }
 
 /// Get the multiplexing id from a MuxedAddressObject.

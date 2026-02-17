@@ -61,13 +61,13 @@ pub fn getLedgerTimestamp() val.U64Val {
     return env.context.get_ledger_timestamp();
 }
 
-/// Return the network id (sha256 hash of network passphrase) as BytesObject.
-pub fn getLedgerNetworkId() val.BytesObject {
+/// Return the network id (sha256 hash of network passphrase) as Bytes.
+pub fn getLedgerNetworkId() val.Bytes {
     return env.context.get_ledger_network_id();
 }
 
 /// Get the Address object for the current contract.
-pub fn getCurrentContractAddress() val.AddressObject {
+pub fn getCurrentContractAddress() val.Address {
     return env.context.get_current_contract_address();
 }
 
@@ -81,37 +81,37 @@ pub fn getMaxLiveUntilLedger() u32 {
 // -----------------------------------------------------------------------
 
 /// Deploy a new contract.
-pub fn createContract(deployer: val.AddressObject, wasm_hash: val.BytesObject, salt: val.BytesObject) val.AddressObject {
+pub fn createContract(deployer: val.Address, wasm_hash: val.Bytes, salt: val.Bytes) val.Address {
     return env.ledger.create_contract(deployer, wasm_hash, salt);
 }
 
 /// Deploy a new contract with constructor arguments.
-pub fn createContractWithConstructor(deployer: val.AddressObject, wasm_hash: val.BytesObject, salt: val.BytesObject, constructor_args: val.VecObject) val.AddressObject {
+pub fn createContractWithConstructor(deployer: val.Address, wasm_hash: val.Bytes, salt: val.Bytes, constructor_args: val.Vec) val.Address {
     return env.ledger.create_contract_with_constructor(deployer, wasm_hash, salt, constructor_args);
 }
 
 /// Deploy a Stellar Asset Contract.
-pub fn createAssetContract(serialized_asset: val.BytesObject) val.AddressObject {
+pub fn createAssetContract(serialized_asset: val.Bytes) val.Address {
     return env.ledger.create_asset_contract(serialized_asset);
 }
 
 /// Upload contract Wasm code, returning its hash.
-pub fn uploadWasm(wasm: val.BytesObject) val.BytesObject {
+pub fn uploadWasm(wasm: val.Bytes) val.Bytes {
     return env.ledger.upload_wasm(wasm);
 }
 
 /// Update the current contract's Wasm code.
-pub fn updateCurrentContractWasm(hash: val.BytesObject) void {
+pub fn updateCurrentContractWasm(hash: val.Bytes) void {
     _ = env.ledger.update_current_contract_wasm(hash);
 }
 
 /// Get the contract address for a deployer and salt.
-pub fn getContractId(deployer: val.AddressObject, salt: val.BytesObject) val.AddressObject {
+pub fn getContractId(deployer: val.Address, salt: val.Bytes) val.Address {
     return env.ledger.get_contract_id(deployer, salt);
 }
 
 /// Get the Stellar Asset Contract address for a serialized asset.
-pub fn getAssetContractId(serialized_asset: val.BytesObject) val.AddressObject {
+pub fn getAssetContractId(serialized_asset: val.Bytes) val.Address {
     return env.ledger.get_asset_contract_id(serialized_asset);
 }
 

@@ -39,21 +39,17 @@ pub const U128Object = val.U128Object;
 pub const I128Object = val.I128Object;
 pub const U256Object = val.U256Object;
 pub const I256Object = val.I256Object;
-pub const BytesObject = val.BytesObject;
 pub const StringObject = val.StringObject;
 pub const SymbolObject = val.SymbolObject;
-pub const VecObject = val.VecObject;
-pub const MapObject = val.MapObject;
-pub const AddressObject = val.AddressObject;
 pub const MuxedAddressObject = val.MuxedAddressObject;
 
 pub const Tag = val.Tag;
 
-// Re-export wrapper types.
-pub const Address = address.Address;
-pub const Vec = vec.Vec;
-pub const Map = map.Map;
-pub const Bytes = bytes.Bytes;
+// Re-export combined types.
+pub const Address = val.Address;
+pub const Vec = val.Vec;
+pub const Map = val.Map;
+pub const Bytes = val.Bytes;
 pub const TokenClient = token.TokenClient;
 
 test {

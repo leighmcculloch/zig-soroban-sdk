@@ -602,19 +602,7 @@ pub const I256Object = extern struct {
     }
 };
 
-pub const BytesObject = extern struct {
-    payload: u64,
-
-    pub fn toVal(self: BytesObject) Val {
-        return .{ .payload = self.payload };
-    }
-    pub fn fromVal(v: Val) BytesObject {
-        return .{ .payload = v.payload };
-    }
-    pub fn getHandle(self: BytesObject) u32 {
-        return objectHandle(self.payload);
-    }
-};
+pub const Bytes = @import("bytes.zig").Bytes;
 
 pub const StringObject = extern struct {
     payload: u64,
@@ -644,47 +632,9 @@ pub const SymbolObject = extern struct {
     }
 };
 
-pub const VecObject = extern struct {
-    payload: u64,
-
-    pub fn toVal(self: VecObject) Val {
-        return .{ .payload = self.payload };
-    }
-    pub fn fromVal(v: Val) VecObject {
-        return .{ .payload = v.payload };
-    }
-    pub fn getHandle(self: VecObject) u32 {
-        return objectHandle(self.payload);
-    }
-};
-
-pub const MapObject = extern struct {
-    payload: u64,
-
-    pub fn toVal(self: MapObject) Val {
-        return .{ .payload = self.payload };
-    }
-    pub fn fromVal(v: Val) MapObject {
-        return .{ .payload = v.payload };
-    }
-    pub fn getHandle(self: MapObject) u32 {
-        return objectHandle(self.payload);
-    }
-};
-
-pub const AddressObject = extern struct {
-    payload: u64,
-
-    pub fn toVal(self: AddressObject) Val {
-        return .{ .payload = self.payload };
-    }
-    pub fn fromVal(v: Val) AddressObject {
-        return .{ .payload = v.payload };
-    }
-    pub fn getHandle(self: AddressObject) u32 {
-        return objectHandle(self.payload);
-    }
-};
+pub const Vec = @import("vec.zig").Vec;
+pub const Map = @import("map.zig").Map;
+pub const Address = @import("address.zig").Address;
 
 pub const MuxedAddressObject = extern struct {
     payload: u64,
@@ -720,10 +670,10 @@ comptime {
     if (@sizeOf(I64Val) != 8) @compileError("I64Val must be 8 bytes");
     if (@sizeOf(Symbol) != 8) @compileError("Symbol must be 8 bytes");
     if (@sizeOf(U64Object) != 8) @compileError("U64Object must be 8 bytes");
-    if (@sizeOf(BytesObject) != 8) @compileError("BytesObject must be 8 bytes");
-    if (@sizeOf(VecObject) != 8) @compileError("VecObject must be 8 bytes");
-    if (@sizeOf(MapObject) != 8) @compileError("MapObject must be 8 bytes");
-    if (@sizeOf(AddressObject) != 8) @compileError("AddressObject must be 8 bytes");
+    if (@sizeOf(Bytes) != 8) @compileError("Bytes must be 8 bytes");
+    if (@sizeOf(Vec) != 8) @compileError("Vec must be 8 bytes");
+    if (@sizeOf(Map) != 8) @compileError("Map must be 8 bytes");
+    if (@sizeOf(Address) != 8) @compileError("Address must be 8 bytes");
     if (@sizeOf(StorageType) != 8) @compileError("StorageType must be 8 bytes");
 }
 
@@ -1175,8 +1125,8 @@ test "I256Object creation and handle" {
     try testing.expectEqual(Tag.i256_object, obj.toVal().getTag());
 }
 
-test "BytesObject creation and handle" {
-    const obj = BytesObject{ .payload = makeObjectPayload(Tag.bytes_object, 100) };
+test "Bytes creation and handle" {
+    const obj = Bytes{ .payload = makeObjectPayload(Tag.bytes_object, 100) };
     try testing.expectEqual(@as(u32, 100), obj.getHandle());
     try testing.expectEqual(Tag.bytes_object, obj.toVal().getTag());
 }
@@ -1193,20 +1143,20 @@ test "SymbolObject creation and handle" {
     try testing.expectEqual(Tag.symbol_object, obj.toVal().getTag());
 }
 
-test "VecObject creation and handle" {
-    const obj = VecObject{ .payload = makeObjectPayload(Tag.vec_object, 0) };
+test "Vec creation and handle" {
+    const obj = Vec{ .payload = makeObjectPayload(Tag.vec_object, 0) };
     try testing.expectEqual(@as(u32, 0), obj.getHandle());
     try testing.expectEqual(Tag.vec_object, obj.toVal().getTag());
 }
 
-test "MapObject creation and handle" {
-    const obj = MapObject{ .payload = makeObjectPayload(Tag.map_object, 0xFFFF_FFFF) };
+test "Map creation and handle" {
+    const obj = Map{ .payload = makeObjectPayload(Tag.map_object, 0xFFFF_FFFF) };
     try testing.expectEqual(@as(u32, 0xFFFF_FFFF), obj.getHandle());
     try testing.expectEqual(Tag.map_object, obj.toVal().getTag());
 }
 
-test "AddressObject creation and handle" {
-    const obj = AddressObject{ .payload = makeObjectPayload(Tag.address_object, 42) };
+test "Address creation and handle" {
+    const obj = Address{ .payload = makeObjectPayload(Tag.address_object, 42) };
     try testing.expectEqual(@as(u32, 42), obj.getHandle());
     try testing.expectEqual(Tag.address_object, obj.toVal().getTag());
 }
@@ -1223,7 +1173,7 @@ test "Object handle zero" {
 }
 
 test "Object handle max" {
-    const obj = BytesObject{ .payload = makeObjectPayload(Tag.bytes_object, 0xFFFF_FFFF) };
+    const obj = Bytes{ .payload = makeObjectPayload(Tag.bytes_object, 0xFFFF_FFFF) };
     try testing.expectEqual(@as(u32, 0xFFFF_FFFF), obj.getHandle());
 }
 

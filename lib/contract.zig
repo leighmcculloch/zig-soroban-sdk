@@ -10,7 +10,7 @@
 // Usage:
 //   const sdk = @import("soroban-sdk");
 //   const MyContract = struct {
-//       pub fn hello(to: sdk.Symbol) sdk.VecObject {
+//       pub fn hello(to: sdk.Symbol) sdk.Vec {
 //           // ...
 //       }
 //   };
@@ -117,12 +117,12 @@ fn specTypeForValType(comptime T: type) ?u32 {
     if (T == val.I128Val or T == val.I128Object) return SC_SPEC_TYPE_I128;
     if (T == val.U256Val or T == val.U256Object) return SC_SPEC_TYPE_U256;
     if (T == val.I256Val or T == val.I256Object) return SC_SPEC_TYPE_I256;
-    if (T == val.BytesObject) return SC_SPEC_TYPE_BYTES;
+    if (T == val.Bytes) return SC_SPEC_TYPE_BYTES;
     if (T == val.StringObject) return SC_SPEC_TYPE_STRING;
     if (T == val.Symbol or T == val.SymbolObject) return SC_SPEC_TYPE_SYMBOL;
-    if (T == val.AddressObject or T == val.MuxedAddressObject) return SC_SPEC_TYPE_ADDRESS;
-    if (T == val.VecObject) return SC_SPEC_TYPE_VAL; // Vec<Val> - generic
-    if (T == val.MapObject) return SC_SPEC_TYPE_VAL; // Map<Val,Val> - generic
+    if (T == val.Address or T == val.MuxedAddressObject) return SC_SPEC_TYPE_ADDRESS;
+    if (T == val.Vec) return SC_SPEC_TYPE_VAL; // Vec<Val> - generic
+    if (T == val.Map) return SC_SPEC_TYPE_VAL; // Map<Val,Val> - generic
     return null;
 }
 
@@ -339,7 +339,7 @@ fn findParamsDecl(comptime ContractType: type, comptime fn_name: []const u8) ?[:
 ///
 /// Example:
 ///   pub const mint_params = [_][]const u8{ "to", "amount" };
-///   pub fn mint(to: sdk.AddressObject, amount: sdk.I128Val) sdk.Void { … }
+///   pub fn mint(to: sdk.Address, amount: sdk.I128Val) sdk.Void { … }
 fn getParamNames(comptime ContractType: type, comptime fn_name: []const u8, comptime FnType: type) []const []const u8 {
     const fn_info = @typeInfo(FnType).@"fn";
     const param_count = fn_info.params.len;
@@ -494,8 +494,8 @@ test "specTypeForValType maps known types" {
     try testing.expectEqual(SC_SPEC_TYPE_BOOL, specTypeForValType(val.Bool).?);
     try testing.expectEqual(SC_SPEC_TYPE_VOID, specTypeForValType(val.Void).?);
     try testing.expectEqual(SC_SPEC_TYPE_SYMBOL, specTypeForValType(val.Symbol).?);
-    try testing.expectEqual(SC_SPEC_TYPE_ADDRESS, specTypeForValType(val.AddressObject).?);
-    try testing.expectEqual(SC_SPEC_TYPE_BYTES, specTypeForValType(val.BytesObject).?);
+    try testing.expectEqual(SC_SPEC_TYPE_ADDRESS, specTypeForValType(val.Address).?);
+    try testing.expectEqual(SC_SPEC_TYPE_BYTES, specTypeForValType(val.Bytes).?);
     try testing.expectEqual(SC_SPEC_TYPE_STRING, specTypeForValType(val.StringObject).?);
     try testing.expectEqual(SC_SPEC_TYPE_U64, specTypeForValType(val.U64Val).?);
     try testing.expectEqual(SC_SPEC_TYPE_I64, specTypeForValType(val.I64Val).?);
@@ -577,8 +577,8 @@ test "functionSpecSize with params" {
 
 test "getContractFunctions finds pub fns" {
     const TestContract = struct {
-        pub fn hello(_: val.Symbol) val.VecObject {
-            return val.VecObject.fromVal(Val.fromU64(0));
+        pub fn hello(_: val.Symbol) val.Vec {
+            return val.Vec.fromVal(Val.fromU64(0));
         }
         pub fn goodbye() val.Void {
             return val.Void.VOID;
@@ -657,8 +657,8 @@ test "specTypeForValType maps object types" {
     try testing.expectEqual(SC_SPEC_TYPE_I256, specTypeForValType(val.I256Object).?);
     try testing.expectEqual(SC_SPEC_TYPE_SYMBOL, specTypeForValType(val.SymbolObject).?);
     try testing.expectEqual(SC_SPEC_TYPE_ADDRESS, specTypeForValType(val.MuxedAddressObject).?);
-    try testing.expectEqual(SC_SPEC_TYPE_VAL, specTypeForValType(val.VecObject).?);
-    try testing.expectEqual(SC_SPEC_TYPE_VAL, specTypeForValType(val.MapObject).?);
+    try testing.expectEqual(SC_SPEC_TYPE_VAL, specTypeForValType(val.Vec).?);
+    try testing.expectEqual(SC_SPEC_TYPE_VAL, specTypeForValType(val.Map).?);
 }
 
 test "specTypeForValType maps Val to SC_SPEC_TYPE_VAL" {
@@ -884,7 +884,7 @@ test "functionSpecSize all params included" {
 }
 
 test "functionSpecSize with named params" {
-    const Fn = fn (val.AddressObject, val.I128Val) val.Void;
+    const Fn = fn (val.Address, val.I128Val) val.Void;
     const param_names = [_][]const u8{ "to", "amount" };
     const size = comptime functionSpecSize("mint", Fn, &param_names);
     // 4 (kind) + 4 (doc) + xdrStringSize("mint"=4) + 4 (inputs len)

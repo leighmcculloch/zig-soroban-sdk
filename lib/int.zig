@@ -14,7 +14,7 @@ const I256Object = val.I256Object;
 const U256Val = val.U256Val;
 const I256Val = val.I256Val;
 const U32Val = val.U32Val;
-const BytesObject = val.BytesObject;
+const Bytes = val.Bytes;
 const TimepointObject = val.TimepointObject;
 const DurationObject = val.DurationObject;
 
@@ -107,11 +107,11 @@ pub fn u256ToObj(hi_hi: u64, hi_lo: u64, lo_hi: u64, lo_lo: u64) U256Object {
     return env.int.obj_from_u256_pieces(hi_hi, hi_lo, lo_hi, lo_lo);
 }
 
-pub fn u256ValFromBeBytes(bytes: BytesObject) U256Val {
+pub fn u256ValFromBeBytes(bytes: Bytes) U256Val {
     return env.int.u256_val_from_be_bytes(bytes);
 }
 
-pub fn u256ValToBeBytes(v: U256Val) BytesObject {
+pub fn u256ValToBeBytes(v: U256Val) Bytes {
     return env.int.u256_val_to_be_bytes(v);
 }
 
@@ -137,11 +137,11 @@ pub fn i256ToObj(hi_hi: i64, hi_lo: u64, lo_hi: u64, lo_lo: u64) I256Object {
     return env.int.obj_from_i256_pieces(hi_hi, hi_lo, lo_hi, lo_lo);
 }
 
-pub fn i256ValFromBeBytes(bytes: BytesObject) I256Val {
+pub fn i256ValFromBeBytes(bytes: Bytes) I256Val {
     return env.int.i256_val_from_be_bytes(bytes);
 }
 
-pub fn i256ValToBeBytes(v: I256Val) BytesObject {
+pub fn i256ValToBeBytes(v: I256Val) Bytes {
     return env.int.i256_val_to_be_bytes(v);
 }
 

@@ -22,14 +22,14 @@ fn symbolObjectFromSlice(comptime s: []const u8) val.Symbol {
 // -----------------------------------------------------------------------
 
 pub const TokenClient = struct {
-    contract: val.AddressObject,
+    contract: val.Address,
 
-    pub fn init(contract_address: val.AddressObject) TokenClient {
+    pub fn init(contract_address: val.Address) TokenClient {
         return .{ .contract = contract_address };
     }
 
     /// Get the allowance that `spender` can spend from `from`.
-    pub fn allowance(self: TokenClient, from: val.AddressObject, spender: val.AddressObject) val.Val {
+    pub fn allowance(self: TokenClient, from: val.Address, spender: val.Address) val.Val {
         var args = env.vec.vec_new();
         args = env.vec.vec_push_back(args, from.toVal());
         args = env.vec.vec_push_back(args, spender.toVal());
@@ -37,7 +37,7 @@ pub const TokenClient = struct {
     }
 
     /// Approve `spender` to spend `amount` from `from` until `expiration_ledger`.
-    pub fn approve(self: TokenClient, from: val.AddressObject, spender: val.AddressObject, amount: val.I128Val, expiration_ledger: val.U32Val) void {
+    pub fn approve(self: TokenClient, from: val.Address, spender: val.Address, amount: val.I128Val, expiration_ledger: val.U32Val) void {
         var args = env.vec.vec_new();
         args = env.vec.vec_push_back(args, from.toVal());
         args = env.vec.vec_push_back(args, spender.toVal());
@@ -47,14 +47,14 @@ pub const TokenClient = struct {
     }
 
     /// Get the token balance of `id`.
-    pub fn balance(self: TokenClient, id: val.AddressObject) val.Val {
+    pub fn balance(self: TokenClient, id: val.Address) val.Val {
         var args = env.vec.vec_new();
         args = env.vec.vec_push_back(args, id.toVal());
         return env.call.call(self.contract, val.Symbol.fromString("balance"), args);
     }
 
     /// Transfer `amount` from `from` to `to`.
-    pub fn transfer(self: TokenClient, from: val.AddressObject, to: val.AddressObject, amount: val.I128Val) void {
+    pub fn transfer(self: TokenClient, from: val.Address, to: val.Address, amount: val.I128Val) void {
         var args = env.vec.vec_new();
         args = env.vec.vec_push_back(args, from.toVal());
         args = env.vec.vec_push_back(args, to.toVal());
@@ -63,7 +63,7 @@ pub const TokenClient = struct {
     }
 
     /// Transfer `amount` from `from` to `to` on behalf of `spender`.
-    pub fn transferFrom(self: TokenClient, spender: val.AddressObject, from: val.AddressObject, to: val.AddressObject, amount: val.I128Val) void {
+    pub fn transferFrom(self: TokenClient, spender: val.Address, from: val.Address, to: val.Address, amount: val.I128Val) void {
         var args = env.vec.vec_new();
         args = env.vec.vec_push_back(args, spender.toVal());
         args = env.vec.vec_push_back(args, from.toVal());
@@ -73,7 +73,7 @@ pub const TokenClient = struct {
     }
 
     /// Burn `amount` from `from`.
-    pub fn burn(self: TokenClient, from: val.AddressObject, amount: val.I128Val) void {
+    pub fn burn(self: TokenClient, from: val.Address, amount: val.I128Val) void {
         var args = env.vec.vec_new();
         args = env.vec.vec_push_back(args, from.toVal());
         args = env.vec.vec_push_back(args, amount.toVal());
@@ -81,7 +81,7 @@ pub const TokenClient = struct {
     }
 
     /// Burn `amount` from `from` on behalf of `spender`.
-    pub fn burnFrom(self: TokenClient, spender: val.AddressObject, from: val.AddressObject, amount: val.I128Val) void {
+    pub fn burnFrom(self: TokenClient, spender: val.Address, from: val.Address, amount: val.I128Val) void {
         var args = env.vec.vec_new();
         args = env.vec.vec_push_back(args, spender.toVal());
         args = env.vec.vec_push_back(args, from.toVal());
@@ -113,7 +113,7 @@ pub const TokenClient = struct {
 // -----------------------------------------------------------------------
 
 /// Emit a transfer event.
-pub fn emitTransfer(from: val.AddressObject, to: val.AddressObject, amount: val.I128Val) void {
+pub fn emitTransfer(from: val.Address, to: val.Address, amount: val.I128Val) void {
     var topics = env.vec.vec_new();
     topics = env.vec.vec_push_back(topics, val.Symbol.fromString("transfer").toVal());
     topics = env.vec.vec_push_back(topics, from.toVal());
@@ -122,7 +122,7 @@ pub fn emitTransfer(from: val.AddressObject, to: val.AddressObject, amount: val.
 }
 
 /// Emit a mint event per SEP-41: topics are ["mint", to], data is amount.
-pub fn emitMint(to: val.AddressObject, amount: val.I128Val) void {
+pub fn emitMint(to: val.Address, amount: val.I128Val) void {
     var topics = env.vec.vec_new();
     topics = env.vec.vec_push_back(topics, val.Symbol.fromString("mint").toVal());
     topics = env.vec.vec_push_back(topics, to.toVal());
@@ -130,7 +130,7 @@ pub fn emitMint(to: val.AddressObject, amount: val.I128Val) void {
 }
 
 /// Emit a burn event.
-pub fn emitBurn(from: val.AddressObject, amount: val.I128Val) void {
+pub fn emitBurn(from: val.Address, amount: val.I128Val) void {
     var topics = env.vec.vec_new();
     topics = env.vec.vec_push_back(topics, val.Symbol.fromString("burn").toVal());
     topics = env.vec.vec_push_back(topics, from.toVal());
@@ -138,7 +138,7 @@ pub fn emitBurn(from: val.AddressObject, amount: val.I128Val) void {
 }
 
 /// Emit a clawback event per SEP-41: topics are ["clawback", from], data is amount.
-pub fn emitClawback(from: val.AddressObject, amount: val.I128Val) void {
+pub fn emitClawback(from: val.Address, amount: val.I128Val) void {
     var topics = env.vec.vec_new();
     topics = env.vec.vec_push_back(topics, val.Symbol.fromString("clawback").toVal());
     topics = env.vec.vec_push_back(topics, from.toVal());
@@ -146,7 +146,7 @@ pub fn emitClawback(from: val.AddressObject, amount: val.I128Val) void {
 }
 
 /// Emit an approve event.
-pub fn emitApprove(from: val.AddressObject, spender: val.AddressObject, amount: val.I128Val, expiration_ledger: val.U32Val) void {
+pub fn emitApprove(from: val.Address, spender: val.Address, amount: val.I128Val, expiration_ledger: val.U32Val) void {
     var topics = env.vec.vec_new();
     topics = env.vec.vec_push_back(topics, val.Symbol.fromString("approve").toVal());
     topics = env.vec.vec_push_back(topics, from.toVal());
@@ -160,7 +160,7 @@ pub fn emitApprove(from: val.AddressObject, spender: val.AddressObject, amount: 
 }
 
 /// Emit a set_authorized event: topics are ["set_authorized", id], data is authorize flag.
-pub fn emitSetAuthorized(id: val.AddressObject, authorize: val.Bool) void {
+pub fn emitSetAuthorized(id: val.Address, authorize: val.Bool) void {
     var topics = env.vec.vec_new();
     topics = env.vec.vec_push_back(topics, symbolObjectFromSlice("set_authorized").toVal());
     topics = env.vec.vec_push_back(topics, id.toVal());
@@ -168,7 +168,7 @@ pub fn emitSetAuthorized(id: val.AddressObject, authorize: val.Bool) void {
 }
 
 /// Emit a set_admin event.
-pub fn emitSetAdmin(admin: val.AddressObject, new_admin: val.AddressObject) void {
+pub fn emitSetAdmin(admin: val.Address, new_admin: val.Address) void {
     var topics = env.vec.vec_new();
     topics = env.vec.vec_push_back(topics, val.Symbol.fromString("set_admin").toVal());
     topics = env.vec.vec_push_back(topics, admin.toVal());
