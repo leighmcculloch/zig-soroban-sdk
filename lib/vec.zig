@@ -100,4 +100,33 @@ pub const Vec = extern struct {
     pub fn slice(self: Vec, start: u32, end: u32) Vec {
         return env.vec.vec_slice(self, val.U32Val.fromU32(start), val.U32Val.fromU32(end));
     }
+
+    /// Get the index of the first occurrence of `x`. Returns null if not found.
+    pub fn indexOf(self: Vec, x: anytype) ?u32 {
+        const result = env.vec.vec_first_index_of(self, val.asVal(x));
+        if (result.getTag() == val.Tag.void_) return null;
+        return val.U32Val.fromVal(result).toU32();
+    }
+
+    /// Get the index of the last occurrence of `x`. Returns null if not found.
+    pub fn lastIndexOf(self: Vec, x: anytype) ?u32 {
+        const result = env.vec.vec_last_index_of(self, val.asVal(x));
+        if (result.getTag() == val.Tag.void_) return null;
+        return val.U32Val.fromVal(result).toU32();
+    }
+
+    /// Check whether the Vec contains `x`.
+    pub fn contains(self: Vec, x: anytype) bool {
+        return self.indexOf(x) != null;
+    }
+
+    /// Binary search a sorted Vec for `x`.
+    /// Returns `.found = true` with the index if found, or `.found = false`
+    /// with the insertion index to maintain sorted order.
+    pub fn binarySearch(self: Vec, x: anytype) struct { found: bool, index: u32 } {
+        const result = env.vec.vec_binary_search(self, val.asVal(x));
+        const high: u32 = @truncate(result >> 32);
+        const low: u32 = @truncate(result);
+        return .{ .found = high == 1, .index = low };
+    }
 };
