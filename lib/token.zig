@@ -6,17 +6,6 @@
 const val = @import("val.zig");
 const env = @import("env.zig");
 
-/// Create a Symbol from a string slice by copying it from linear memory
-/// into the host as a SymbolObject. Used for symbol names longer than 9
-/// characters that don't fit in the small inline representation.
-fn symbolObjectFromSlice(comptime s: []const u8) val.Symbol {
-    const obj = env.buf.symbol_new_from_linear_memory(
-        val.U32Val.fromU32(@intCast(@intFromPtr(s.ptr))),
-        val.U32Val.fromU32(@intCast(s.len)),
-    );
-    return val.Symbol.fromVal(obj.toVal());
-}
-
 // -----------------------------------------------------------------------
 // TokenClient - cross-contract calls to a token contract
 // -----------------------------------------------------------------------
@@ -69,7 +58,7 @@ pub const TokenClient = struct {
         args = env.vec.vec_push_back(args, from.toVal());
         args = env.vec.vec_push_back(args, to.toVal());
         args = env.vec.vec_push_back(args, amount.toVal());
-        _ = env.call.call(self.contract, symbolObjectFromSlice("transfer_from"), args);
+        _ = env.call.call(self.contract, val.Symbol.fromString("transfer_from"), args);
     }
 
     /// Burn `amount` from `from`.
@@ -162,7 +151,7 @@ pub fn emitApprove(from: val.Address, spender: val.Address, amount: val.I128Val,
 /// Emit a set_authorized event: topics are ["set_authorized", id], data is authorize flag.
 pub fn emitSetAuthorized(id: val.Address, authorize: val.Bool) void {
     var topics = env.vec.vec_new();
-    topics = env.vec.vec_push_back(topics, symbolObjectFromSlice("set_authorized").toVal());
+    topics = env.vec.vec_push_back(topics, val.Symbol.fromString("set_authorized").toVal());
     topics = env.vec.vec_push_back(topics, id.toVal());
     _ = env.context.contract_event(topics, authorize.toVal());
 }

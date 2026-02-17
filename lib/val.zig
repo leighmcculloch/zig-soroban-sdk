@@ -418,18 +418,28 @@ pub const Symbol = extern struct {
         return .{ .payload = v.payload };
     }
 
-    /// Encode a small symbol from a comptime-known string.
-    /// Characters are packed 6 bits each from MSB to LSB into the
-    /// body, with unused high bits left as zero. This matches the
-    /// Rust SDK's SymbolSmall encoding.
+    /// Create a Symbol from a comptime-known string.
+    /// Strings of 9 characters or fewer use the efficient small inline
+    /// encoding. Longer strings are stored as host-side SymbolObjects.
     pub fn fromString(comptime s: []const u8) Symbol {
-        if (s.len > 9) @compileError("SymbolSmall can hold at most 9 characters");
+        if (s.len > 9) return fromLongString(s);
         comptime var body: u64 = 0;
         inline for (s) |c| {
             const code: u6 = comptime encodeSymbolChar(c);
             body = (body << 6) | @as(u64, code);
         }
         return .{ .payload = comptime makeTaggedPayload(Tag.symbol_small, body) };
+    }
+
+    /// Create a Symbol from a string longer than 9 characters by copying
+    /// it from linear memory into a host-side SymbolObject.
+    pub fn fromLongString(comptime s: []const u8) Symbol {
+        const e = @import("env.zig");
+        const obj = e.buf.symbol_new_from_linear_memory(
+            U32Val.fromU32(@intCast(@intFromPtr(s.ptr))),
+            U32Val.fromU32(@intCast(s.len)),
+        );
+        return Symbol.fromVal(obj.toVal());
     }
 
     fn encodeSymbolChar(c: u8) u6 {
