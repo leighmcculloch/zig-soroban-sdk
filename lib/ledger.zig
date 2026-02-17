@@ -5,6 +5,7 @@
 
 const val = @import("val.zig");
 const env = @import("env.zig");
+const int = @import("int.zig");
 
 pub const StorageType = val.StorageType;
 
@@ -30,6 +31,39 @@ pub fn getContractData(key: val.Val, storage_type: StorageType) val.Val {
 /// Delete a key from contract storage.
 pub fn delContractData(key: val.Val, storage_type: StorageType) void {
     _ = env.ledger.del_contract_data(key, storage_type);
+}
+
+// -----------------------------------------------------------------------
+// Typed storage helpers
+// -----------------------------------------------------------------------
+
+/// Get a Val by key, returning null if the key doesn't exist.
+pub fn getVal(key: anytype, storage_type: StorageType) ?val.Val {
+    const k = val.asVal(key);
+    if (!hasContractData(k, storage_type)) return null;
+    return getContractData(k, storage_type);
+}
+
+/// Get a u32 by key, returning null if the key doesn't exist.
+pub fn getU32(key: anytype, storage_type: StorageType) ?u32 {
+    const v = getVal(key, storage_type) orelse return null;
+    return val.U32Val.fromVal(v).toU32();
+}
+
+/// Store a u32 under a key.
+pub fn putU32(key: anytype, v: u32, storage_type: StorageType) void {
+    putContractData(val.asVal(key), val.U32Val.fromU32(v).toVal(), storage_type);
+}
+
+/// Get an i128 by key, returning null if the key doesn't exist.
+pub fn getI128(key: anytype, storage_type: StorageType) ?i128 {
+    const v = getVal(key, storage_type) orelse return null;
+    return int.i128FromVal(val.I128Val.fromVal(v));
+}
+
+/// Store an i128 under a key.
+pub fn putI128(key: anytype, v: i128, storage_type: StorageType) void {
+    putContractData(val.asVal(key), int.i128ToVal(v).toVal(), storage_type);
 }
 
 /// Extend the TTL of a contract data entry.
