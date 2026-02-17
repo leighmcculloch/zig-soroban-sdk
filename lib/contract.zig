@@ -105,7 +105,7 @@ const SC_ENV_META_KIND_INTERFACE_VERSION: u32 = 0;
 fn specTypeForValType(comptime T: type) ?u32 {
     if (T == val.Val) return SC_SPEC_TYPE_VAL;
     if (T == val.Bool) return SC_SPEC_TYPE_BOOL;
-    if (T == val.Void) return SC_SPEC_TYPE_VOID;
+    if (T == val.Void or T == void) return SC_SPEC_TYPE_VOID;
     if (T == val.Error) return SC_SPEC_TYPE_ERROR;
     if (T == val.U32Val) return SC_SPEC_TYPE_U32;
     if (T == val.I32Val) return SC_SPEC_TYPE_I32;
@@ -390,6 +390,7 @@ fn fromU64(comptime T: type, v: u64) T {
 
 // Convert a Val-derived result type back to u64 for wasm ABI.
 fn resultToU64(comptime T: type, result: T) u64 {
+    if (T == void) return val.Void.VOID.payload;
     if (T == Val) return result.toU64();
     if (@hasDecl(T, "toVal")) return result.toVal().toU64();
     if (T == u64) return result;
