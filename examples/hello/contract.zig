@@ -11,10 +11,7 @@ const sdk = @import("soroban-sdk");
 const HelloContract = struct {
     /// Greet the given name. Returns a Vec containing ["Hello", to].
     pub fn hello(to: sdk.Symbol) sdk.Vec {
-        var greeting = sdk.Vec.new();
-        greeting.pushBack(sdk.Symbol.fromString("Hello").toVal());
-        greeting.pushBack(to.toVal());
-        return greeting;
+        return sdk.Vec.from(.{ sdk.Symbol.fromString("Hello"), to });
     }
 };
 

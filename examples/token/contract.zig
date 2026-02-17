@@ -22,10 +22,10 @@ const TokenContract = struct {
 
     pub const @"__constructor_params" = [_][]const u8{ "admin", "decimal", "name", "symbol" };
     pub fn @"__constructor"(admin: sdk.Address, decimal: sdk.U32Val, token_name: sdk.StringObject, token_symbol: sdk.StringObject) sdk.Void {
-        sdk.ledger.putContractData(ADMIN_KEY.toVal(), admin.toVal(), sdk.StorageType.instance);
-        sdk.ledger.putContractData(DEC_KEY.toVal(), decimal.toVal(), sdk.StorageType.instance);
-        sdk.ledger.putContractData(NAME_KEY.toVal(), token_name.toVal(), sdk.StorageType.instance);
-        sdk.ledger.putContractData(SYM_KEY.toVal(), token_symbol.toVal(), sdk.StorageType.instance);
+        sdk.ledger.putContractData(sdk.asVal(ADMIN_KEY), sdk.asVal(admin), sdk.StorageType.instance);
+        sdk.ledger.putContractData(sdk.asVal(DEC_KEY), sdk.asVal(decimal), sdk.StorageType.instance);
+        sdk.ledger.putContractData(sdk.asVal(NAME_KEY), sdk.asVal(token_name), sdk.StorageType.instance);
+        sdk.ledger.putContractData(sdk.asVal(SYM_KEY), sdk.asVal(token_symbol), sdk.StorageType.instance);
         return sdk.Void.VOID;
     }
 
@@ -57,7 +57,7 @@ const TokenContract = struct {
 
         const amt = sdk.int.i128FromVal(amount);
         if (amt < 0) {
-            sdk.ledger.failWithError(sdk.Error.fromParts(4, 2));
+            sdk.failContract(2);
         }
 
         writeAllowance(from, spender, amt, exp_ledger.toU32());
@@ -79,7 +79,7 @@ const TokenContract = struct {
 
         const from_bal = readBalance(from);
         if (from_bal < amt) {
-            sdk.ledger.failWithError(sdk.Error.fromParts(4, 4));
+            sdk.failContract(4);
         }
         writeBalance(from, from_bal - amt);
 
@@ -101,7 +101,7 @@ const TokenContract = struct {
 
         const from_bal = readBalance(from);
         if (from_bal < amt) {
-            sdk.ledger.failWithError(sdk.Error.fromParts(4, 4));
+            sdk.failContract(4);
         }
         writeBalance(from, from_bal - amt);
 
@@ -121,7 +121,7 @@ const TokenContract = struct {
 
         const bal = readBalance(from);
         if (bal < amt) {
-            sdk.ledger.failWithError(sdk.Error.fromParts(4, 4));
+            sdk.failContract(4);
         }
         writeBalance(from, bal - amt);
 
@@ -140,7 +140,7 @@ const TokenContract = struct {
 
         const from_bal = readBalance(from);
         if (from_bal < amt) {
-            sdk.ledger.failWithError(sdk.Error.fromParts(4, 4));
+            sdk.failContract(4);
         }
         writeBalance(from, from_bal - amt);
 
@@ -151,15 +151,15 @@ const TokenContract = struct {
     // -- Metadata --
 
     pub fn decimals() sdk.U32Val {
-        return sdk.U32Val.fromVal(sdk.ledger.getContractData(DEC_KEY.toVal(), sdk.StorageType.instance));
+        return sdk.U32Val.fromVal(sdk.ledger.getContractData(sdk.asVal(DEC_KEY), sdk.StorageType.instance));
     }
 
     pub fn name() sdk.StringObject {
-        return sdk.StringObject.fromVal(sdk.ledger.getContractData(NAME_KEY.toVal(), sdk.StorageType.instance));
+        return sdk.StringObject.fromVal(sdk.ledger.getContractData(sdk.asVal(NAME_KEY), sdk.StorageType.instance));
     }
 
     pub fn symbol() sdk.StringObject {
-        return sdk.StringObject.fromVal(sdk.ledger.getContractData(SYM_KEY.toVal(), sdk.StorageType.instance));
+        return sdk.StringObject.fromVal(sdk.ledger.getContractData(sdk.asVal(SYM_KEY), sdk.StorageType.instance));
     }
 };
 
@@ -172,35 +172,25 @@ comptime {
 // ---------------------------------------------------------------------------
 
 fn getAdmin() sdk.Address {
-    return sdk.Address.fromVal(sdk.ledger.getContractData(ADMIN_KEY.toVal(), sdk.StorageType.instance));
+    return sdk.Address.fromVal(sdk.ledger.getContractData(sdk.asVal(ADMIN_KEY), sdk.StorageType.instance));
 }
 
 fn requirePositive(amount: i128) void {
     if (amount <= 0) {
-        sdk.ledger.failWithError(sdk.Error.fromParts(4, 2));
+        sdk.failContract(2);
     }
 }
 
 // -- Balance storage --
 
 fn readBalance(addr: sdk.Address) i128 {
-    const key = makeBalanceKey(addr);
-    if (sdk.ledger.hasContractData(key, sdk.StorageType.persistent)) {
-        return sdk.int.i128FromVal(sdk.I128Val.fromVal(sdk.ledger.getContractData(key, sdk.StorageType.persistent)));
-    }
-    return 0;
+    const key = sdk.asVal(sdk.Vec.from(.{ BAL_TAG, addr }));
+    return sdk.ledger.getI128(key, sdk.StorageType.persistent) orelse 0;
 }
 
 fn writeBalance(addr: sdk.Address, amount: i128) void {
-    const key = makeBalanceKey(addr);
-    sdk.ledger.putContractData(key, sdk.int.i128ToVal(amount).toVal(), sdk.StorageType.persistent);
-}
-
-fn makeBalanceKey(addr: sdk.Address) sdk.Val {
-    var v = sdk.Vec.new();
-    v.pushBack(BAL_TAG.toVal());
-    v.pushBack(addr.toVal());
-    return v.toVal();
+    const key = sdk.asVal(sdk.Vec.from(.{ BAL_TAG, addr }));
+    sdk.ledger.putI128(key, amount, sdk.StorageType.persistent);
 }
 
 // -- Allowance storage --
@@ -222,10 +212,8 @@ fn readAllowance(from: sdk.Address, spender: sdk.Address) struct { amount: i128,
 fn writeAllowance(from: sdk.Address, spender: sdk.Address, amount: i128, expiration_ledger: u32) void {
     const key = makeAllowanceKey(from, spender);
     if (amount > 0 and expiration_ledger >= sdk.ledger.getLedgerSequence()) {
-        var data = sdk.Vec.new();
-        data.pushBack(sdk.int.i128ToVal(amount).toVal());
-        data.pushBack(sdk.U32Val.fromU32(expiration_ledger).toVal());
-        sdk.ledger.putContractData(key, data.toVal(), sdk.StorageType.temporary);
+        const data = sdk.Vec.from(.{ sdk.int.i128ToVal(amount), sdk.U32Val.fromU32(expiration_ledger) });
+        sdk.ledger.putContractData(key, sdk.asVal(data), sdk.StorageType.temporary);
         sdk.ledger.extendContractDataTtl(key, sdk.StorageType.temporary, expiration_ledger - sdk.ledger.getLedgerSequence(), expiration_ledger - sdk.ledger.getLedgerSequence());
     } else if (sdk.ledger.hasContractData(key, sdk.StorageType.temporary)) {
         sdk.ledger.delContractData(key, sdk.StorageType.temporary);
@@ -235,17 +223,13 @@ fn writeAllowance(from: sdk.Address, spender: sdk.Address, amount: i128, expirat
 fn spendAllowance(from: sdk.Address, spender: sdk.Address, amount: i128) void {
     const allowance_data = readAllowance(from, spender);
     if (allowance_data.amount < amount) {
-        sdk.ledger.failWithError(sdk.Error.fromParts(4, 1));
+        sdk.failContract(1);
     }
     writeAllowance(from, spender, allowance_data.amount - amount, allowance_data.expiration_ledger);
 }
 
 fn makeAllowanceKey(from: sdk.Address, spender: sdk.Address) sdk.Val {
-    var v = sdk.Vec.new();
-    v.pushBack(ALLOW_TAG.toVal());
-    v.pushBack(from.toVal());
-    v.pushBack(spender.toVal());
-    return v.toVal();
+    return sdk.asVal(sdk.Vec.from(.{ ALLOW_TAG, from, spender }));
 }
 
 // ---------------------------------------------------------------------------

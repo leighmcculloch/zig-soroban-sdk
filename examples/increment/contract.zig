@@ -14,19 +14,12 @@ const IncrementContract = struct {
     /// Increment the counter by 1 and return the new value.
     pub fn increment() sdk.U32Val {
         // Read the current count from persistent storage, defaulting to 0.
-        const count: u32 = if (sdk.ledger.hasContractData(COUNTER_KEY.toVal(), sdk.StorageType.persistent))
-            sdk.ledger.getContractData(COUNTER_KEY.toVal(), sdk.StorageType.persistent).getMajor()
-        else
-            0;
+        const count: u32 = sdk.ledger.getU32(COUNTER_KEY, sdk.StorageType.persistent) orelse 0;
 
         const new_count = count + 1;
 
         // Store the new count in persistent storage.
-        sdk.ledger.putContractData(
-            COUNTER_KEY.toVal(),
-            sdk.U32Val.fromU32(new_count).toVal(),
-            sdk.StorageType.persistent,
-        );
+        sdk.ledger.putU32(COUNTER_KEY, new_count, sdk.StorageType.persistent);
 
         // Extend the TTL of the data entry so it persists.
         sdk.ledger.extendContractDataTtl(
