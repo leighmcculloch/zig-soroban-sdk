@@ -13,6 +13,8 @@ pub const ledger = @import("ledger.zig");
 pub const token = @import("token.zig");
 pub const logging = @import("log.zig");
 pub const prng = @import("prng.zig");
+pub const compare = @import("compare.zig");
+pub const serialize = @import("serialize.zig");
 
 // Re-export core types for convenience.
 pub const Val = val.Val;
@@ -46,6 +48,7 @@ pub const Map = val.Map;
 pub const Bytes = val.Bytes;
 pub const TokenClient = token.TokenClient;
 pub const log = logging.log;
+pub const cmp = compare.cmp;
 
 test {
     _ = val;
