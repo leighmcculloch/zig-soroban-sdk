@@ -25,6 +25,17 @@ pub const Vec = extern struct {
         return env.vec.vec_new();
     }
 
+    /// Create a Vec from a tuple of Val-compatible elements.
+    /// Example: `Vec.from(.{ symbol, addr, amount })`
+    pub fn from(args: anytype) Vec {
+        var v = Vec.new();
+        const fields = @typeInfo(@TypeOf(args)).@"struct".fields;
+        inline for (fields) |f| {
+            v.pushBack(@field(args, f.name));
+        }
+        return v;
+    }
+
     /// Return the number of elements.
     pub fn len(self: Vec) u32 {
         return env.vec.vec_len(self).toU32();
