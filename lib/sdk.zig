@@ -15,6 +15,7 @@ pub const logging = @import("log.zig");
 pub const prng = @import("prng.zig");
 pub const compare = @import("compare.zig");
 pub const serialize = @import("serialize.zig");
+pub const string = @import("string.zig");
 
 // Re-export core types for convenience.
 pub const Val = val.Val;
@@ -36,6 +37,7 @@ pub const StorageType = val.StorageType;
 pub const ContractTTLExtension = val.ContractTTLExtension;
 pub const SCErrorType = val.SCErrorType;
 
+pub const String = val.String;
 pub const StringObject = val.StringObject;
 pub const SymbolObject = val.SymbolObject;
 pub const MuxedAddressObject = val.MuxedAddressObject;

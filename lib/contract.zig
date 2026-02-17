@@ -118,7 +118,7 @@ fn specTypeForValType(comptime T: type) ?u32 {
     if (T == val.U256Val or T == val.U256Object) return SC_SPEC_TYPE_U256;
     if (T == val.I256Val or T == val.I256Object) return SC_SPEC_TYPE_I256;
     if (T == val.Bytes) return SC_SPEC_TYPE_BYTES;
-    if (T == val.StringObject) return SC_SPEC_TYPE_STRING;
+    if (T == val.String or T == val.StringObject) return SC_SPEC_TYPE_STRING;
     if (T == val.Symbol or T == val.SymbolObject) return SC_SPEC_TYPE_SYMBOL;
     if (T == val.Address or T == val.MuxedAddressObject) return SC_SPEC_TYPE_ADDRESS;
     if (T == val.Vec) return SC_SPEC_TYPE_VAL; // Vec<Val> - generic

@@ -641,19 +641,8 @@ pub const I256Object = extern struct {
 
 pub const Bytes = @import("bytes.zig").Bytes;
 
-pub const StringObject = extern struct {
-    payload: u64,
-
-    pub fn toVal(self: StringObject) Val {
-        return .{ .payload = self.payload };
-    }
-    pub fn fromVal(v: Val) StringObject {
-        return .{ .payload = v.payload };
-    }
-    pub fn getHandle(self: StringObject) u32 {
-        return objectHandle(self.payload);
-    }
-};
+pub const String = @import("string.zig").String;
+pub const StringObject = String;
 
 pub const SymbolObject = extern struct {
     payload: u64,
