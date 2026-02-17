@@ -95,8 +95,8 @@ const SC_SPEC_TYPE_SYMBOL: u32 = 17;
 const SC_SPEC_TYPE_ADDRESS: u32 = 19;
 
 // Parameterized container types
-const SC_SPEC_TYPE_VEC: u32 = 1001;
-const SC_SPEC_TYPE_MAP: u32 = 1002;
+const SC_SPEC_TYPE_VEC: u32 = 1002;
+const SC_SPEC_TYPE_MAP: u32 = 1004;
 
 // SCSpecEntryKind discriminant values
 const SC_SPEC_ENTRY_FUNCTION_V0: u32 = 0;
