@@ -49,6 +49,9 @@ pub const Bytes = val.Bytes;
 pub const TokenClient = token.TokenClient;
 pub const log = logging.log;
 pub const cmp = compare.cmp;
+pub const callWithArgs = cross_call.callWithArgs;
+pub const tryCallWithArgs = cross_call.tryCallWithArgs;
+pub const asVal = val.asVal;
 
 test {
     _ = val;
