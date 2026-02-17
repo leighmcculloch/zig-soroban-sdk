@@ -11,6 +11,7 @@ pub const events = @import("events.zig");
 pub const cross_call = @import("call.zig");
 pub const ledger = @import("ledger.zig");
 pub const token = @import("token.zig");
+pub const logging = @import("log.zig");
 
 // Re-export core types for convenience.
 pub const Val = val.Val;
@@ -43,6 +44,7 @@ pub const Vec = val.Vec;
 pub const Map = val.Map;
 pub const Bytes = val.Bytes;
 pub const TokenClient = token.TokenClient;
+pub const log = logging.log;
 
 test {
     _ = val;
