@@ -60,4 +60,20 @@ pub const Map = extern struct {
     pub fn values(self: Map) Vec {
         return env.map.map_values(self);
     }
+
+    /// Get the value for a key, or null if the key is not found.
+    pub fn getOrNull(self: Map, key: anytype) ?val.Val {
+        if (!self.has(key)) return null;
+        return self.get(key);
+    }
+
+    /// Get the key at sorted position `pos`.
+    pub fn keyByPos(self: Map, pos: u32) val.Val {
+        return env.map.map_key_by_pos(self, val.U32Val.fromU32(pos));
+    }
+
+    /// Get the value at sorted position `pos`.
+    pub fn valByPos(self: Map, pos: u32) val.Val {
+        return env.map.map_val_by_pos(self, val.U32Val.fromU32(pos));
+    }
 };
