@@ -158,3 +158,8 @@ pub fn failWithError(err: val.Error) noreturn {
     _ = env.context.fail_with_error(err);
     unreachable;
 }
+
+/// Cause the contract to fail immediately with a contract error code.
+pub fn failContract(code: u32) noreturn {
+    failWithError(val.Error.contractError(code));
+}

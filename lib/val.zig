@@ -186,6 +186,23 @@ pub const Error = extern struct {
     pub fn getErrorCode(self: Error) u32 {
         return getMajor(self.payload);
     }
+
+    /// Create a contract error with the given code.
+    pub fn contractError(code: u32) Error {
+        return fromParts(SCErrorType.Contract, code);
+    }
+};
+
+pub const SCErrorType = struct {
+    pub const WasmVm: u24 = 0;
+    pub const Context: u24 = 1;
+    pub const Storage: u24 = 2;
+    pub const Object: u24 = 3;
+    pub const Contract: u24 = 4;
+    pub const Crypto: u24 = 5;
+    pub const Events: u24 = 6;
+    pub const Budget: u24 = 7;
+    pub const Auth: u24 = 10;
 };
 
 // ---------------------------------------------------------------------

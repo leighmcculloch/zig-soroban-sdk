@@ -34,6 +34,7 @@ pub const I256Val = val.I256Val;
 pub const Symbol = val.Symbol;
 pub const StorageType = val.StorageType;
 pub const ContractTTLExtension = val.ContractTTLExtension;
+pub const SCErrorType = val.SCErrorType;
 
 pub const StringObject = val.StringObject;
 pub const SymbolObject = val.SymbolObject;
@@ -53,6 +54,7 @@ pub const callWithArgs = cross_call.callWithArgs;
 pub const tryCallWithArgs = cross_call.tryCallWithArgs;
 pub const asVal = val.asVal;
 pub const emit = events.emit;
+pub const failContract = ledger.failContract;
 
 test {
     _ = val;
