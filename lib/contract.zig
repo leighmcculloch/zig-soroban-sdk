@@ -94,6 +94,10 @@ const SC_SPEC_TYPE_STRING: u32 = 16;
 const SC_SPEC_TYPE_SYMBOL: u32 = 17;
 const SC_SPEC_TYPE_ADDRESS: u32 = 19;
 
+// Parameterized container types
+const SC_SPEC_TYPE_VEC: u32 = 1001;
+const SC_SPEC_TYPE_MAP: u32 = 1002;
+
 // SCSpecEntryKind discriminant values
 const SC_SPEC_ENTRY_FUNCTION_V0: u32 = 0;
 
@@ -121,20 +125,32 @@ fn specTypeForValType(comptime T: type) ?u32 {
     if (T == val.String or T == val.StringObject) return SC_SPEC_TYPE_STRING;
     if (T == val.Symbol or T == val.SymbolObject) return SC_SPEC_TYPE_SYMBOL;
     if (T == val.Address or T == val.MuxedAddressObject) return SC_SPEC_TYPE_ADDRESS;
-    if (T == val.Vec) return SC_SPEC_TYPE_VAL; // Vec<Val> - generic
-    if (T == val.Map) return SC_SPEC_TYPE_VAL; // Map<Val,Val> - generic
+    if (T == val.Vec) return SC_SPEC_TYPE_VEC;
+    if (T == val.Map) return SC_SPEC_TYPE_MAP;
     return null;
 }
 
-// Size of an SCSpecTypeDef encoding: just the 4-byte discriminant for
-// simple types (no parameters).
+// Size of an SCSpecTypeDef encoding.
 fn specTypeDefSize(comptime spec_type: u32) usize {
-    _ = spec_type;
-    return 4; // discriminant only for simple types
+    return switch (spec_type) {
+        SC_SPEC_TYPE_VEC => 4 + 4, // discriminant + element type (Val)
+        SC_SPEC_TYPE_MAP => 4 + 4 + 4, // discriminant + key type (Val) + value type (Val)
+        else => 4, // discriminant only for simple types
+    };
 }
 
 fn writeSpecTypeDef(w: *XdrWriter, spec_type: u32) void {
     w.writeU32(spec_type);
+    switch (spec_type) {
+        SC_SPEC_TYPE_VEC => {
+            w.writeU32(SC_SPEC_TYPE_VAL); // element type
+        },
+        SC_SPEC_TYPE_MAP => {
+            w.writeU32(SC_SPEC_TYPE_VAL); // key type
+            w.writeU32(SC_SPEC_TYPE_VAL); // value type
+        },
+        else => {},
+    }
 }
 
 // =====================================================================
@@ -168,16 +184,17 @@ fn functionSpecSize(comptime name: []const u8, comptime Fn: type, comptime param
     size += xdrStringSize(name.len); // function name
     size += 4; // inputs array length
     inline for (params, 0..) |param, i| {
-        _ = param;
         size += xdrStringSize(0); // input doc (empty)
         size += xdrStringSize(param_names[i].len); // input name
-        size += 4; // input type
+        const P = param.type orelse val.Val;
+        const p_spec = specTypeForValType(P) orelse SC_SPEC_TYPE_VAL;
+        size += specTypeDefSize(p_spec); // input type
     }
     size += 4; // outputs array length
     // Output type
     const ret_spec = specTypeForValType(return_type);
     if (ret_spec != null and ret_spec.? != SC_SPEC_TYPE_VOID) {
-        size += 4; // output type
+        size += specTypeDefSize(ret_spec.?); // output type
     }
     return size;
 }
@@ -743,8 +760,8 @@ test "specTypeForValType maps object types" {
     try testing.expectEqual(SC_SPEC_TYPE_I256, specTypeForValType(val.I256Object).?);
     try testing.expectEqual(SC_SPEC_TYPE_SYMBOL, specTypeForValType(val.SymbolObject).?);
     try testing.expectEqual(SC_SPEC_TYPE_ADDRESS, specTypeForValType(val.MuxedAddressObject).?);
-    try testing.expectEqual(SC_SPEC_TYPE_VAL, specTypeForValType(val.Vec).?);
-    try testing.expectEqual(SC_SPEC_TYPE_VAL, specTypeForValType(val.Map).?);
+    try testing.expectEqual(SC_SPEC_TYPE_VEC, specTypeForValType(val.Vec).?);
+    try testing.expectEqual(SC_SPEC_TYPE_MAP, specTypeForValType(val.Map).?);
 }
 
 test "specTypeForValType maps Val to SC_SPEC_TYPE_VAL" {
