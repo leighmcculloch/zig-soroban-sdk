@@ -12,6 +12,7 @@ pub const cross_call = @import("call.zig");
 pub const ledger = @import("ledger.zig");
 pub const token = @import("token.zig");
 pub const logging = @import("log.zig");
+pub const prng = @import("prng.zig");
 
 // Re-export core types for convenience.
 pub const Val = val.Val;
